@@ -13,7 +13,7 @@ class Table:
 
         self._init_var_type(var_type)
         self.primary = self._checkPrimary()
-        
+
         for col in self.var:
             self.data[col] = []
         self.data[self.primary] = []
@@ -33,7 +33,9 @@ class Table:
         if not action.get('data', default=None) == None:
             for col in self.var:
                 self.data[col].append(action.get(col, default=None))
-        # else:
+        else:
+            if len(action['values']) != len(self.var):
+                print('Can not resolve input')
 
         # check if the table got user defiend primary key, and append it
         if self.primary == '__index__':
