@@ -32,9 +32,6 @@ class Table:
     def delete(self, action):
         pass
 
-    def deletee(self):
-        pass
-
     def insert(self, action):
         if not action.get('data', default=None) == None:
             for col in self.var:
