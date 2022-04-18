@@ -1,8 +1,5 @@
 
 
-from email.policy import default
-
-
 class Table:
     # {
     # 'col1' : ['string', 'unique'],
@@ -62,6 +59,10 @@ class Table:
             # check if the provided columns matches
             if len(action['values']) != len(self.var):
                 print('Can not resolve input')
+            else:
+                for i in range(len(action['values'])):
+                    self.data[self.var[i]].append(action['values'][i])
+
 
         # check if the table got user defiend primary key, and append it
         if self.primary == '__index__':
