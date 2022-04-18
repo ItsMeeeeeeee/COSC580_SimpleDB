@@ -1,4 +1,4 @@
-from executorSQL import SQLExecuter
+from executorSQL.executorSQL import SQLExecuter
 
 p = SQLExecuter()
 

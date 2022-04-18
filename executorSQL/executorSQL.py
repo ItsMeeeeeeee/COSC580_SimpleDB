@@ -1,5 +1,5 @@
-from parserSQL import SQLParser
-from database import Table
+from parserSQL.parserSQL import SQLParser
+from database.database import Table
 
 
 class SQLExecuter:
