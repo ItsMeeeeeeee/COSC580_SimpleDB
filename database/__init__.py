@@ -31,13 +31,13 @@ class Table:
 
     # save each columns' name and type to self
     def _init_var_type(self, var_type):
-        for var, type in var_type.items():
+        for var, type in var_type:
             self.var.append(var)
             self.type.append(type)
 
     # check if primary key is provided
     def _checkPrimary(self):
-        for key, type in self.var_type.items():
+        for key, type in zip(self.var, self.type):
             if 'primary key' in type:
                 return key
         return '__index__'
