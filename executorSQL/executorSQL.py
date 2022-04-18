@@ -1,21 +1,22 @@
-from parser import SQLParser
+from parserSQL import SQLParser
 from database import Table
+
 
 class SQLExecuter:
     def __init__(self, tables={}):
-        # init the parser 
+        # init the parserSQL
         self.parser = SQLParser()
 
         # init the dict to store each table and its' name
-        # fill in the tables by using the given tables 
+        # fill in the tables by using the given tables
         self.tables = tables
 
         # map the keywords with function
         self.function = {
-            'insert' : self._insert,
-            'create' : self._create
+            'insert': self._insert,
+            'create': self._create
         }
-    
+
     def execute(self, statement):
         action = self.parser.parse(statement)
         if action:

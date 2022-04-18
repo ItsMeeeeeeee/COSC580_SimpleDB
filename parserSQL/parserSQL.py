@@ -2,6 +2,7 @@
 
 import re
 
+
 # from case import *
 
 class SQLParser:
@@ -27,7 +28,7 @@ class SQLParser:
             'INSERT_2': r'(INSERT|insert) (INTO|into) (.*) (VALUES|values) \((.*)\)'
         }
 
-    def __filter_space(self,obj):
+    def __filter_space(self, obj):
         ret = []
         for x in obj:
             if x.strip() == '' or x.strip() == 'AND':
@@ -40,7 +41,7 @@ class SQLParser:
             statement = statement.split("where")
         else:
             statement = statement.split("WHERE")
-        
+
         # 基于空格实现SQL语句的split，取出关键字
         base_statement = self.__filter_space(statement[0].split(" "))
 
@@ -74,15 +75,15 @@ class SQLParser:
             if len(conditions) < 3:
                 print('Cannot Resolve Given Input!!!')
                 return
-            action['conditions'] = {}    # conditions 条件
+            action['conditions'] = {}  # conditions 条件
             for index in range(0, len(conditions), 3):
                 field = conditions[index]
                 symbol = conditions[index + 1].upper()
                 condition = conditions[index + 2]
 
                 action['conditions'][field] = {
-                    'operation' : symbol,
-                    'value' : condition
+                    'operation': symbol,
+                    'value': condition
                 }
         return action
 
@@ -107,7 +108,8 @@ class SQLParser:
                 'fields': fields
             }
         return None
-    def __update(self,statement):
+
+    def __update(self, statement):
         comp = self.__get_comp('UPDATE')
         ret = comp.findall(' '.join(statement))
 
@@ -133,17 +135,17 @@ class SQLParser:
             return data
         return None
 
-    def __delete(self,statement):
+    def __delete(self, statement):
         return {
-            'type':'delete',
+            'type': 'delete',
             'table': statement[2]
         }
 
     # 插入只支持"INSERT INTO 表名称 VALUES (值1, 值2,....)"
-    def __insert(self,statement):
+    def __insert(self, statement):
         comp = self.__get_comp('INSERT')
         ret = comp.findall(' '.join(statement))
-        # print('parser __insert ret:',ret)
+        # print('parserSQL __insert ret:',ret)
 
         if ret and len(ret[0]) == 6:
             ret_tmp = ret[0]
@@ -157,7 +159,7 @@ class SQLParser:
             }
             fields = ret_tmp[3].split(",")
             values = ret_tmp[5].split(",")
-            print('parser __insert fields:', fields)
+            print('parserSQL __insert fields:', fields)
 
             for i in range(0, len(fields)):
                 field = fields[i]
@@ -185,7 +187,7 @@ class SQLParser:
                 'values': values
             }
             return data
-        
+
         return None
 
     # -----------------** 基于数据库的操作 **---------------------#
@@ -205,7 +207,7 @@ class SQLParser:
         info['object'] = statement[1].lower()
         info['name'] = statement[2]
         info['cols'] = {}
-        # check if the values and definition is provided 
+        # check if the values and definition is provided
         if ret:
             # extract the var name and its' type
             vars = ret[0][1].split(',')
@@ -225,7 +227,7 @@ class SQLParser:
             'type': 'exit'
         }
 
-    def __quit(self,_):
+    def __quit(self, _):
         return {
             'type': 'quit'
         }
