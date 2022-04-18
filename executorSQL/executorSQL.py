@@ -1,5 +1,6 @@
-from parser import SQLParser
+from parserSQL.parserSQL import SQLParser
 from database import Table
+
 
 class SQLExecuter:
     def __init__(self, tables):
@@ -7,9 +8,9 @@ class SQLExecuter:
         self.tables = {}
         self._init_tables(tables)
         self.function = {
-            'insert' : self._insert
+            'insert': self._insert
         }
-    
+
     def _init_tables(self, tables):
         for name, table in tables.items():
             self.tables[name] = table
