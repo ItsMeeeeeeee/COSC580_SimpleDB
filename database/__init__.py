@@ -4,12 +4,16 @@ from email.policy import default
 
 
 class Table:
+    # {
+    # 'col1' : ['string', 'unique'],
+    # 'col2' : ['int', 'primary key']
+    # }
     def __init__(self, name, var_type):
         # table anme
         self.name = name
         # all columns' name
         self.var = []
-        # all columns' corresponding variable type
+        # all columns' corresponding variable type and constraint
         self.type = []
         # a dictionary of list, that used to store each columns' data
         self.data = {}
@@ -31,7 +35,7 @@ class Table:
 
     # save each columns' name and type to self
     def _init_var_type(self, var_type):
-        for var, type in var_type:
+        for var, type in var_type.items():
             self.var.append(var)
             self.type.append(type)
 
