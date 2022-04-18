@@ -26,6 +26,17 @@ class Table:
             if 'primary key' in type:
                 return key
         return '__index__'
+
+    def delete(self):
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+
+        pass
     
     def insert(self, action):
         if not action.get('data', default=None) == None:
