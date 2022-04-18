@@ -1,5 +1,7 @@
-from parser import SQLParser
+from executer import SQLExecuter
 
-p = SQLParser()
-# print(p.parse('SELECT * FROM table1 WHERE a=1'))
-print(p.parse('DELETE FROM table where col1 = 1 AND col2 = 2'))
+p = SQLExecuter()
+
+
+p.execute("CREATE TABLE test { age int primary, name string }")
+p.execute('insert into test values (1, 2)')

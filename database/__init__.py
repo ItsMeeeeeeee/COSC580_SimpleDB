@@ -1,8 +1,5 @@
 
 
-from email.policy import default
-
-
 class Table:
     # {
     # 'col1' : ['string', 'unique'],
@@ -42,7 +39,7 @@ class Table:
     # check if primary key is provided
     def _checkPrimary(self):
         for key, type in zip(self.var, self.type):
-            if 'primary key' in type:
+            if 'primary' in type:
                 return key
         return '__index__'
 
@@ -54,14 +51,18 @@ class Table:
         # {'type': 'insert', 'table': 'table1', 'data': {'col1': 1, ' col2': 2, ' col3': 3, ' col4': 4}}
         # {'type': 'insert', 'table': 'table1', 'values': ['1', ' 2', ' 3', ' 4']}
         # inlcude data means this statement specified the columns
-        if not action.get('data', default=None) == None:
+        if not action.get('data') == None:
             for col in self.var:
-                self.data[col].append(action.get(col, default=None))
+                self.data[col].append(action.get(col))
         # otherwise, not
         else:
             # check if the provided columns matches
             if len(action['values']) != len(self.var):
                 print('Can not resolve input')
+            else:
+                for i in range(len(action['values'])):
+                    self.data[self.var[i]].append(action['values'][i])
+
 
         # check if the table got user defiend primary key, and append it
         if self.primary == '__index__':
