@@ -1,1 +1,0 @@
-# COSC580_SimpleDB
