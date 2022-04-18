@@ -9,11 +9,13 @@ class Table:
         self.var = []
         self.type = []
         self.data = {}
+        self.index = 0
+
         self._init_var_type(var_type)
+        self.primary = self._checkPrimary()
+        
         for col in self.var:
             self.data[col] = []
-        self.primary = self._checkPrimary()
-        self.index = 0
         self.data[self.primary] = []
 
     def _init_var_type(self, var_type):
@@ -27,17 +29,9 @@ class Table:
                 return key
         return '__index__'
 
-    def delete(self):
-        print(1)
-        print(1)
-        print(1)
-        print(1)
-        print(1)
-        print(1)
-        print(1)
-
+    def delete(self, action):
         pass
-    
+
     def insert(self, action):
         if not action.get('data', default=None) == None:
             for col in self.var:
