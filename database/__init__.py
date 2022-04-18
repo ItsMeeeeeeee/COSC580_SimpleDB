@@ -39,7 +39,7 @@ class Table:
     # check if primary key is provided
     def _checkPrimary(self):
         for key, type in zip(self.var, self.type):
-            if 'primary key' in type:
+            if 'primary' in type:
                 return key
         return '__index__'
 
@@ -51,9 +51,9 @@ class Table:
         # {'type': 'insert', 'table': 'table1', 'data': {'col1': 1, ' col2': 2, ' col3': 3, ' col4': 4}}
         # {'type': 'insert', 'table': 'table1', 'values': ['1', ' 2', ' 3', ' 4']}
         # inlcude data means this statement specified the columns
-        if not action.get('data', default=None) == None:
+        if not action.get('data') == None:
             for col in self.var:
-                self.data[col].append(action.get(col, default=None))
+                self.data[col].append(action.get(col))
         # otherwise, not
         else:
             # check if the provided columns matches

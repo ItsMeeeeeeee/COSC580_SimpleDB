@@ -19,6 +19,8 @@ class SQLParser:
             'DROP': self.__drop,
         }
         self.__pattern_map = {
+            'CREATE': r'(.*) {(.*)}',
+            'CREATE_2': r'(.*)\s(.*)',
             'SELECT': r'(SELECT|select) (.*) (FROM|from) (.*)',
             'UPDATE': r'(UPDATE|update) (.*) (SET|set) (.*)',
             'INSERT': r'(INSERT|insert) (INTO|into) (.*) \((.*)\) (VALUES|values) \((.*)\)',
@@ -60,7 +62,8 @@ class SQLParser:
         # print('parse action:', action)
 
         if action is None or 'type' not in action:
-            raise Exception('Syntax Error for: %s' % statement)
+            print('Syntax Error for: %s' % statement)
+            return None
 
         conditions = None
 
@@ -68,6 +71,9 @@ class SQLParser:
             conditions = self.__filter_space(statement[1].split(" "))
 
         if conditions:
+            if len(conditions) < 3:
+                print('Cannot Resolve Given Input!!!')
+                return
             action['conditions'] = {}    # conditions 条件
             for index in range(0, len(conditions), 3):
                 field = conditions[index]
@@ -141,6 +147,9 @@ class SQLParser:
 
         if ret and len(ret[0]) == 6:
             ret_tmp = ret[0]
+            # check if the given table name is a string without space, raise error if do contain space
+            if (len(ret_tmp[2].split(' ')) > 1):
+                return None
             data = {
                 'type': 'insert',
                 'table': ret_tmp[2],
@@ -166,7 +175,10 @@ class SQLParser:
         ret = self.__get_comp('INSERT_2').findall(' '.join(statement))
         if ret and len(ret[0]) == 5:
             ret_tmp = ret[0]
-            values = ret_tmp[4].split(",")
+            # check if the given table name is a string without space, raise error if do contain space
+            if (len(ret_tmp[2].split(' ')) > 1):
+                return None
+            values = ret_tmp[4].split(", ")
             data = {
                 'type': 'insert',
                 'table': ret_tmp[2],
@@ -185,10 +197,27 @@ class SQLParser:
         }
 
     def __create(self, statement):
-        return {
-            'type': 'create',
-            'database': statement[2]
-        }
+        comp = self.__get_comp('CREATE')
+        ret = comp.findall(' '.join(statement))
+        info = {}
+        # set the tend first
+        info['type'] = 'create'
+        info['object'] = statement[1].lower()
+        info['name'] = statement[2]
+        info['cols'] = {}
+        # check if the values and definition is provided 
+        if ret:
+            # extract the var name and its' type
+            vars = ret[0][1].split(',')
+            for var_type in vars:
+                detailed = var_type.strip().split(' ')
+                info['cols'][detailed[0]] = []
+                for i in range(1, len(detailed)):
+                    info['cols'][detailed[0]].append(detailed[i])
+            return info
+        else:
+            print("Cannot Resolve Given Input!!!")
+            return None
 
     # 退出
     def __exit(self, _):
@@ -230,10 +259,6 @@ class SQLParser:
                 'type': 'drop',
                 'kind': 'tables'
             }
-
-
-if __name__ == '__main__':
-    SQLParser().parse('select f_id from t_test')
 
 
 
