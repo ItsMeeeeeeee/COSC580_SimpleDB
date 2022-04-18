@@ -28,7 +28,10 @@ class Table:
             if 'primary key' in type:
                 return key
         return '__index__'
-    
+
+    def delete(self, action):
+        pass
+
     def insert(self, action):
         if not action.get('data', default=None) == None:
             for col in self.var:
