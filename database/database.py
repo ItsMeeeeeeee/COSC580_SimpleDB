@@ -63,6 +63,50 @@ class Table:
         # delete data from table according to index in descending order
         self.delete_data(index_delete)
 
+    def select(self, action):
+        fields = action["fields"]
+
+        # print(fields, "fields")
+        def select_data(index_select):
+            result = dict()
+            for index in index_select:
+                for field in fields:
+                    if not result.get(field, False):
+                        result[field] = []
+                    result[field].append(self.data[field][index])
+            return result
+
+        cols_select = []
+        conditions_select = []
+        for k, v in action["conditions"].items():
+            cols_select.append(k)
+            conditions_select.append(v)
+
+        index_list_select = []
+        for i in range(len(conditions_select)):
+            cond = conditions_select[i]
+            col = cols_select[i]
+            if cond["operation"] == '=':
+                index_list_select.append(util.get_equal_keys_list(self.data[col], cond["value"]))
+            elif cond["operation"] == '<':
+                index_list_select.append(util.get_less_keys_list(self.data[col], cond["value"]))
+            elif cond["operation"] == '>':
+                index_list_select.append(util.get_more_keys_list(self.data[col], cond["value"]))
+            elif cond["operation"] == '<=':
+                index_list_select.append(util.get_less_equal_keys_list(self.data[col], cond["value"]))
+            elif cond["operation"] == '>=':
+                index_list_select.append(util.get_more_equal_keys_list(self.data[col], cond["value"]))
+
+        # get intersection
+        index_select = index_list_select[0]
+        for i in range(1, len(index_list_select)):
+            index_select = list(set(index_select).intersection(index_list_select[i]))
+        index_select.sort(reverse=True)
+        print(index_select)
+        # delete data from table according to index in descending order
+        result = select_data(index_select)
+        print(result)
+
     def insert(self, action):
         # check the type of input, one is specify the columns they want to insert, other one does not
         # {'type': 'insert', 'table': 'table1', 'data': {'col1': 1, ' col2': 2, ' col3': 3, ' col4': 4}}
