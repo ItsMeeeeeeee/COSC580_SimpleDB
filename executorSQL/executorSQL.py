@@ -33,4 +33,5 @@ class SQLExecuter:
     
     def _select(self, action):
         print(action)
-        self.tables[action['table']].select(action)
+        res = self.tables[action['table']].select(action)
+        print(res)
