@@ -66,10 +66,11 @@ class SQLParser:
             print('Syntax Error for: %s' % statement)
             return None
 
-        conditions = None
-
+        conditions = []
         if len(statement) == 2:
-            conditions = self.__filter_space(statement[1].split(" "))
+            conditions_list = self.__filter_space(statement[1].split("AND"))
+            for cond in conditions_list:
+                conditions.extend(self.__filter_space(cond.split(" ")))
 
         if conditions:
             if len(conditions) < 3:
