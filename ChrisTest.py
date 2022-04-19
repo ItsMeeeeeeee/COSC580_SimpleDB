@@ -3,25 +3,26 @@ from parserSQL.parserSQL import SQLParser
 import util
 
 p = SQLParser()
-action = p.parse("DELETE FROM TABLE1 WHERE COL1 = 13 AND COL2 > 5")
+action = p.parse("DELETE FROM TABLE1 WHERE COL1 > 3 AND COL2 > 5")
 
 print(action)
 
-def test_delete():
-    action = {
-        'type': 'delete',
-        'table': 'TABLE1',
-        'conditions': {
-            'COL1': {
-                'operation': '>',
-                'value': '3'
-            },
-            'COL2': {
-                'operation': '<',
-                'value': '12'
-            }
-        }
-    }
+
+def test_delete(action):
+    # action = {
+    #     'type': 'delete',
+    #     'table': 'TABLE1',
+    #     'conditions': {
+    #         'COL1': {
+    #             'operation': '>',
+    #             'value': '3'
+    #         },
+    #         'COL2': {
+    #             'operation': '<',
+    #             'value': '12'
+    #         }
+    #     }
+    # }
 
     def delete_data(index_delete):
         for index in index_delete:
@@ -70,4 +71,6 @@ def test_delete():
 
     print(data)
 
+
+test_delete(action)
 

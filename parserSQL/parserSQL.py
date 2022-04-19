@@ -263,5 +263,7 @@ class SQLParser:
                 'kind': 'tables'
             }
 
-
+if __name__ == '__main__':
+    d = SQLParser().parse(input(">"))
+    print(f'tokens : {d}')
 
