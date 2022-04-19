@@ -48,7 +48,9 @@ class Table:
     def _biggerAndEqual(self, cond, col):
         util.get_more_equal_keys_list(self.data[col], cond["value"])
     def _smallerAndEqual(self, cond, col):
-        util.get_less_equal_keys_list(self.data[col], cond["value"])
+        # util.get_less_equal_keys_list(self.data[col], cond["value"])
+        
+        return [index for index, v in enumerate(self.data[col]) if v <= float(cond["value"])]
 
     # save each columns' name and type to s
     # elf
@@ -118,7 +120,7 @@ class Table:
         index_select.sort(reverse=True)
         print(index_select)
         # delete data from table according to index in descending order
-        result = self._select_data(index_select)
+        result = self._select_data(index_select, fields)
         print(result)
 
     def insert(self, action):
