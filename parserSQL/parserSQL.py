@@ -87,181 +87,181 @@ class SQLParser:
                     'value': condition
                 }
         return action
-
-    def __get_comp(self, action):
-        return re.compile(self.__pattern_map[action])
-
-    # -----------------** 基于数据表的操作 **---------------------#
-    def __select(self, statement):
-        # print('statement:', statement)
-        comp = self.__get_comp('SELECT')
-        ret = comp.findall(' '.join(statement))
-        # print(ret, ' '.join(statement))
-        if ret and len(ret[0]) == 4:
-            fields = ret[0][1]
-            table = ret[0][3]
-
-            if fields != '*':
-                fields = [field.strip() for field in fields.split(',')]
-            return {
-                'type': 'search',
-                'table': table,
-                'fields': fields
-            }
-        return None
-
-    def __update(self, statement):
-        comp = self.__get_comp('UPDATE')
-        ret = comp.findall(' '.join(statement))
-
-        if ret and len(ret[0]) == 4:
-            data = {
-                'type': 'update',
-                'table': ret[0][1],
-                'data': {}
-            }
-            set_statement = ret[0][3].split(',')
-            for s in set_statement:
-                s = s.split('=')
-                field = s[0].strip()
-                value = s[1].strip()
-                if "'" in value or '"' in value:
-                    value = value.replace('"', '').replace(",", '').strip()
-                else:
-                    try:
-                        value = int(value.strip())
-                    except:
-                        return None
-                data['data'][field] = value
-            return data
-        return None
-
-    def __delete(self, statement):
-        return {
-            'type': 'delete',
-            'table': statement[2]
-        }
-
-    # 插入只支持"INSERT INTO 表名称 VALUES (值1, 值2,....)"
-    def __insert(self, statement):
-        comp = self.__get_comp('INSERT')
-        ret = comp.findall(' '.join(statement))
-        # print('parserSQL __insert ret:',ret)
-
-        if ret and len(ret[0]) == 6:
-            ret_tmp = ret[0]
-            # check if the given table name is a string without space, raise error if do contain space
-            if (len(ret_tmp[2].split(' ')) > 1):
-                return None
-            data = {
-                'type': 'insert',
-                'table': ret_tmp[2],
-                'data': {}
-            }
-            fields = ret_tmp[3].split(",")
-            values = ret_tmp[5].split(",")
-            print('parserSQL __insert fields:', fields)
-
-            for i in range(0, len(fields)):
-                field = fields[i]
-                value = values[i]
-                if "'" in value or '"' in value:
-                    value = value.replace('"', '').replace("'", '').strip()
-                else:
-                    try:
-                        value = int(value.strip())
-                    except:
-                        return None
-                data['data'][field] = value
-            return data
-
-        ret = self.__get_comp('INSERT_2').findall(' '.join(statement))
-        if ret and len(ret[0]) == 5:
-            ret_tmp = ret[0]
-            # check if the given table name is a string without space, raise error if do contain space
-            if (len(ret_tmp[2].split(' ')) > 1):
-                return None
-            values = ret_tmp[4].split(", ")
-            data = {
-                'type': 'insert',
-                'table': ret_tmp[2],
-                'values': values
-            }
-            return data
-
-        return None
-
-    # -----------------** 基于数据库的操作 **---------------------#
-    # 选择使用的数据库
-    def __use(self, statement):
-        return {
-            'type': 'use',
-            'database': statement[1]
-        }
-
-    def __create(self, statement):
-        comp = self.__get_comp('CREATE')
-        ret = comp.findall(' '.join(statement))
-        info = {}
-        # set the tend first
-        info['type'] = 'create'
-        info['object'] = statement[1].lower()
-        info['name'] = statement[2]
-        info['cols'] = {}
-        # check if the values and definition is provided
-        if ret:
-            # extract the var name and its' type
-            vars = ret[0][1].split(',')
-            for var_type in vars:
-                detailed = var_type.strip().split(' ')
-                info['cols'][detailed[0]] = []
-                for i in range(1, len(detailed)):
-                    info['cols'][detailed[0]].append(detailed[i])
-            return info
-        else:
-            print("Cannot Resolve Given Input!!!")
-            return None
-
-    # 退出
-    def __exit(self, _):
-        return {
-            'type': 'exit'
-        }
-
-    def __quit(self, _):
-        return {
-            'type': 'quit'
-        }
-
-    # 查看数据库列表或数据表 列表
-    def __show(self, statement):
-        kind = statement[1]
-
-        if kind.upper() == 'DATABASES':
-            return {
-                'type': 'show',
-                'kind': 'databases'
-            }
-        if kind.upper() == 'TABLES':
-            return {
-                'type': 'show',
-                'kind': 'tables'
-            }
-
-    # 删除数据库或数据表
-    def __drop(self, statement):
-        kind = statement[1]
-
-        if kind.upper() == 'DATABASES':
-            return {
-                'type': 'drop',
-                'kind': 'databases'
-            }
-        if kind.upper() == 'TABLES':
-            return {
-                'type': 'drop',
-                'kind': 'tables'
-            }
+    #
+    # def __get_comp(self, action):
+    #     return re.compile(self.__pattern_map[action])
+    #
+    # # -----------------** 基于数据表的操作 **---------------------#
+    # def __select(self, statement):
+    #     # print('statement:', statement)
+    #     comp = self.__get_comp('SELECT')
+    #     ret = comp.findall(' '.join(statement))
+    #     # print(ret, ' '.join(statement))
+    #     if ret and len(ret[0]) == 4:
+    #         fields = ret[0][1]
+    #         table = ret[0][3]
+    #
+    #         if fields != '*':
+    #             fields = [field.strip() for field in fields.split(',')]
+    #         return {
+    #             'type': 'search',
+    #             'table': table,
+    #             'fields': fields
+    #         }
+    #     return None
+    #
+    # def __update(self, statement):
+    #     comp = self.__get_comp('UPDATE')
+    #     ret = comp.findall(' '.join(statement))
+    #
+    #     if ret and len(ret[0]) == 4:
+    #         data = {
+    #             'type': 'update',
+    #             'table': ret[0][1],
+    #             'data': {}
+    #         }
+    #         set_statement = ret[0][3].split(',')
+    #         for s in set_statement:
+    #             s = s.split('=')
+    #             field = s[0].strip()
+    #             value = s[1].strip()
+    #             if "'" in value or '"' in value:
+    #                 value = value.replace('"', '').replace(",", '').strip()
+    #             else:
+    #                 try:
+    #                     value = int(value.strip())
+    #                 except:
+    #                     return None
+    #             data['data'][field] = value
+    #         return data
+    #     return None
+    #
+    # def __delete(self, statement):
+    #     return {
+    #         'type': 'delete',
+    #         'table': statement[2]
+    #     }
+    #
+    # # 插入只支持"INSERT INTO 表名称 VALUES (值1, 值2,....)"
+    # def __insert(self, statement):
+    #     comp = self.__get_comp('INSERT')
+    #     ret = comp.findall(' '.join(statement))
+    #     # print('parserSQL __insert ret:',ret)
+    #
+    #     if ret and len(ret[0]) == 6:
+    #         ret_tmp = ret[0]
+    #         # check if the given table name is a string without space, raise error if do contain space
+    #         if (len(ret_tmp[2].split(' ')) > 1):
+    #             return None
+    #         data = {
+    #             'type': 'insert',
+    #             'table': ret_tmp[2],
+    #             'data': {}
+    #         }
+    #         fields = ret_tmp[3].split(",")
+    #         values = ret_tmp[5].split(",")
+    #         print('parserSQL __insert fields:', fields)
+    #
+    #         for i in range(0, len(fields)):
+    #             field = fields[i]
+    #             value = values[i]
+    #             if "'" in value or '"' in value:
+    #                 value = value.replace('"', '').replace("'", '').strip()
+    #             else:
+    #                 try:
+    #                     value = int(value.strip())
+    #                 except:
+    #                     return None
+    #             data['data'][field] = value
+    #         return data
+    #
+    #     ret = self.__get_comp('INSERT_2').findall(' '.join(statement))
+    #     if ret and len(ret[0]) == 5:
+    #         ret_tmp = ret[0]
+    #         # check if the given table name is a string without space, raise error if do contain space
+    #         if (len(ret_tmp[2].split(' ')) > 1):
+    #             return None
+    #         values = ret_tmp[4].split(", ")
+    #         data = {
+    #             'type': 'insert',
+    #             'table': ret_tmp[2],
+    #             'values': values
+    #         }
+    #         return data
+    #
+    #     return None
+    #
+    # # -----------------** 基于数据库的操作 **---------------------#
+    # # 选择使用的数据库
+    # def __use(self, statement):
+    #     return {
+    #         'type': 'use',
+    #         'database': statement[1]
+    #     }
+    #
+    # def __create(self, statement):
+    #     comp = self.__get_comp('CREATE')
+    #     ret = comp.findall(' '.join(statement))
+    #     info = {}
+    #     # set the tend first
+    #     info['type'] = 'create'
+    #     info['object'] = statement[1].lower()
+    #     info['name'] = statement[2]
+    #     info['cols'] = {}
+    #     # check if the values and definition is provided
+    #     if ret:
+    #         # extract the var name and its' type
+    #         vars = ret[0][1].split(',')
+    #         for var_type in vars:
+    #             detailed = var_type.strip().split(' ')
+    #             info['cols'][detailed[0]] = []
+    #             for i in range(1, len(detailed)):
+    #                 info['cols'][detailed[0]].append(detailed[i])
+    #         return info
+    #     else:
+    #         print("Cannot Resolve Given Input!!!")
+    #         return None
+    #
+    # # 退出
+    # def __exit(self, _):
+    #     return {
+    #         'type': 'exit'
+    #     }
+    #
+    # def __quit(self, _):
+    #     return {
+    #         'type': 'quit'
+    #     }
+    #
+    # # 查看数据库列表或数据表 列表
+    # def __show(self, statement):
+    #     kind = statement[1]
+    #
+    #     if kind.upper() == 'DATABASES':
+    #         return {
+    #             'type': 'show',
+    #             'kind': 'databases'
+    #         }
+    #     if kind.upper() == 'TABLES':
+    #         return {
+    #             'type': 'show',
+    #             'kind': 'tables'
+    #         }
+    #
+    # # 删除数据库或数据表
+    # def __drop(self, statement):
+    #     kind = statement[1]
+    #
+    #     if kind.upper() == 'DATABASES':
+    #         return {
+    #             'type': 'drop',
+    #             'kind': 'databases'
+    #         }
+    #     if kind.upper() == 'TABLES':
+    #         return {
+    #             'type': 'drop',
+    #             'kind': 'tables'
+    #         }
 
 
 
