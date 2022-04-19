@@ -112,15 +112,25 @@ class Table:
             tmp = self._condition_map[cond["operation"]](cond, col)
             index_list_select.append(tmp)
 
-        # get intersection
-        index_select = index_list_select[0]
-        for i in range(1, len(index_list_select)):
-            index_select = list(set(index_select).intersection(index_list_select[i]))
-        index_select.sort()
-        print('Index: ', index_select)
-        # delete data from table according to index in descending order
-        result = self._select_data(index_select, fields)
-        return result
+        # set a condition check for only one constraint
+        if len(index_list_select) == 1:
+            return index_list_select[0]
+        else:
+            index_select = index_list_select[0]
+            if action['condition_logic'] == 'AND':
+                # get intersection
+                for i in range(1, len(index_list_select)):
+                    index_select = list(set(index_select).intersection(index_list_select[i]))
+                index_select.sort()
+            elif action['condition_logic'] == 'OR':
+                # get intersection
+                for i in range(1, len(index_list_select)):
+                    index_select = list(set(index_select).union(index_list_select[i]))
+                index_select.sort()
+            print('Index: ', index_select)
+            # delete data from table according to index in descending order
+            result = self._select_data(index_select, fields)
+            return result
 
     def insert(self, action):
         # check the type of input, one is specify the columns they want to insert, other one does not
