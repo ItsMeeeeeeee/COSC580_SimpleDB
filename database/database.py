@@ -1,3 +1,5 @@
+import util
+
 
 class Table:
     # {
@@ -42,8 +44,42 @@ class Table:
                 return key
         return '__index__'
 
+    def delete_data(self, index_delete):
+        for index in index_delete:
+            for col in self.var:
+                del self.data[col][index]
+            if self.primary == '__index__':
+                del self.data[self.primary][index]
+
     def delete(self, action):
-        pass
+        cols_delete = []
+        conditions_delete = []
+        for k, v in action["conditions"].items():
+            cols_delete.append(k)
+            conditions_delete.append(v)
+
+        index_list_delete = []
+        for i in range(len(conditions_delete)):
+            cond = conditions_delete[i]
+            col = cols_delete[i]
+            if cond["operation"] == '=':
+                index_list_delete.append(util.get_equal_keys_list(self.data[col], cond["value"]))
+            elif cond["operation"] == '<':
+                index_list_delete.append(util.get_less_keys_list(self.data[col], cond["value"]))
+            elif cond["operation"] == '>':
+                index_list_delete.append(util.get_more_keys_list(self.data[col], cond["value"]))
+            elif cond["operation"] == '<=':
+                index_list_delete.append(util.get_less_equal_keys_list(self.data[col], cond["value"]))
+            elif cond["operation"] == '>=':
+                index_list_delete.append(util.get_more_equal_keys_list(self.data[col], cond["value"]))
+
+        # get intersection
+        index_delete = index_list_delete[0]
+        for i in range(1, len(index_list_delete)):
+            index_delete = list(set(index_delete).intersection(index_list_delete[i]))
+        index_delete.sort(reverse=True)
+        # delete data from table according to index in descending order
+        self.delete_data(index_delete)
 
     def insert(self, action):
         # check the type of input, one is specify the columns they want to insert, other one does not
@@ -62,7 +98,6 @@ class Table:
                 for i in range(len(action['values'])):
                     self.data[self.var[i]].append(action['values'][i])
 
-
         # check if the table got user defiend primary key, and append it
         if self.primary == '__index__':
             index = self.index
@@ -70,5 +105,3 @@ class Table:
             self.data[self.primary].append(index)
 
         # append other values
-
-
