@@ -94,16 +94,16 @@ class Table:
                     result[field].append(self.data[field][index])
             return result
 
-        cols_delete = []
-        conditions_delete = []
+        cols_select = []
+        conditions_select = []
         for k, v in action["conditions"].items():
-            cols_delete.append(k)
-            conditions_delete.append(v)
+            cols_select.append(k)
+            conditions_select.append(v)
 
         index_list_select = []
-        for i in range(len(conditions_delete)):
-            cond = conditions_delete[i]
-            col = cols_delete[i]
+        for i in range(len(conditions_select)):
+            cond = conditions_select[i]
+            col = cols_select[i]
             if cond["operation"] == '=':
                 index_list_select.append(util.get_equal_keys_list(self.data[col], cond["value"]))
             elif cond["operation"] == '<':

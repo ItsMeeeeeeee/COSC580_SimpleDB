@@ -75,16 +75,16 @@ def test_select(action, data):
                 result[field].append(data[field][index])
         return result
 
-    cols_delete = []
-    conditions_delete = []
+    cols_select = []
+    conditions_select = []
     for k, v in action["conditions"].items():
-        cols_delete.append(k)
-        conditions_delete.append(v)
+        cols_select.append(k)
+        conditions_select.append(v)
 
     index_list_select = []
-    for i in range(len(conditions_delete)):
-        cond = conditions_delete[i]
-        col = cols_delete[i]
+    for i in range(len(conditions_select)):
+        cond = conditions_select[i]
+        col = cols_select[i]
         if cond["operation"] == '=':
             index_list_select.append(util.get_equal_keys_list(data[col], cond["value"]))
         elif cond["operation"] == '<':
