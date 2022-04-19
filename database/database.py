@@ -1,6 +1,5 @@
 import util
 
-
 class Table:
     # {
     # 'col1' : ['string', 'unique'],
@@ -15,6 +14,14 @@ class Table:
         self.type = []
         # a dictionary of list, that used to store each columns' data
         self.data = {}
+
+        self._condition_map = {
+            '=' : self._equal,
+            '>' : self._bigger,
+            '<' : self._smaller,
+            '>=' : self._biggerAndEqual,
+            '<=' : self._smallerAndEqual,
+        }
 
         # self defined index, used if no primary key given
         self.index = 0
@@ -31,8 +38,20 @@ class Table:
         # if primary key provided, this line is just overwrite the previous step; if not, this line will create a new list(key pair in the dictionary)
         self.data[self.primary] = []
 
+    # the helper function help condiction 
+    def _equal(self, cond, col):
+        return util.get_equal_keys_list(self.data[col], cond["value"])
+    def _bigger(self, cond, col):
+        util.get_more_keys_list(self.data[col], cond["value"])
+    def _smaller(self, cond, col):
+        util.get_less_keys_list(self.data[col], cond["value"])
+    def _biggerAndEqual(self, cond, col):
+        util.get_more_equal_keys_list(self.data[col], cond["value"])
+    def _smallerAndEqual(self, cond, col):
+        util.get_less_equal_keys_list(self.data[col], cond["value"])
 
-    # save each columns' name and type to self
+    # save each columns' name and type to s
+    # elf
     def _init_var_type(self, var_type):
         for var, type in var_type.items():
             self.var.append(var)
@@ -43,17 +62,28 @@ class Table:
         for key, type in zip(self.var, self.type):
             if 'primary' in type:
                 return key
-        return '__index__'
+        return 'index__'
 
-    def delete_data(self, index_delete):
+    def _delete_data(self, index_delete):
         for index in index_delete:
             for col in self.var:
                 del self.data[col][index]
             if self.primary == '__index__':
                 del self.data[self.primary][index]
+    
+    # a helper function used to help select function to get corresponding info
+    def _select_data(self, index_select, fields):
+        result = dict()
+        for index in index_select:
+            for field in fields:
+                if not result.get(field, False):
+                    result[field] = []
+                result[field].append(self.data[field][index])
+        return result
+
+########################################################################################################
 
     def delete(self, action):
-
         # get intersection
         index_list_delete = self.condition_filter(action["conditions"])
         index_delete = index_list_delete[0]
@@ -61,21 +91,10 @@ class Table:
             index_delete = list(set(index_delete).intersection(index_list_delete[i]))
         index_delete.sort(reverse=True)
         # delete data from table according to index in descending order
-        self.delete_data(index_delete)
-
+        self._delete_data(index_delete)
+        
     def select(self, action):
         fields = action["fields"]
-
-        # print(fields, "fields")
-        def select_data(index_select):
-            result = dict()
-            for index in index_select:
-                for field in fields:
-                    if not result.get(field, False):
-                        result[field] = []
-                    result[field].append(self.data[field][index])
-            return result
-
         cols_select = []
         conditions_select = []
         for k, v in action["conditions"].items():
@@ -86,16 +105,11 @@ class Table:
         for i in range(len(conditions_select)):
             cond = conditions_select[i]
             col = cols_select[i]
-            if cond["operation"] == '=':
-                index_list_select.append(util.get_equal_keys_list(self.data[col], cond["value"]))
-            elif cond["operation"] == '<':
-                index_list_select.append(util.get_less_keys_list(self.data[col], cond["value"]))
-            elif cond["operation"] == '>':
-                index_list_select.append(util.get_more_keys_list(self.data[col], cond["value"]))
-            elif cond["operation"] == '<=':
-                index_list_select.append(util.get_less_equal_keys_list(self.data[col], cond["value"]))
-            elif cond["operation"] == '>=':
-                index_list_select.append(util.get_more_equal_keys_list(self.data[col], cond["value"]))
+            if cond["operation"] not in self._condition_map:
+                print('Error! Cannot Resolve Given Input')
+                return
+            tmp = self._condition_map[cond["operation"]](cond, col)
+            index_list_select.append(tmp)
 
         # get intersection
         index_select = index_list_select[0]
@@ -104,7 +118,7 @@ class Table:
         index_select.sort(reverse=True)
         print(index_select)
         # delete data from table according to index in descending order
-        result = select_data(index_select)
+        result = self._select_data(index_select)
         print(result)
 
     def insert(self, action):
@@ -122,15 +136,16 @@ class Table:
                 print('Can not resolve input')
             else:
                 for i in range(len(action['values'])):
-                    self.data[self.var[i]].append(action['values'][i])
+                    if self.type[i][0] == 'int' or self.type[i][0] == 'float':
+                        self.data[self.var[i]].append(float(action['values'][i]))
+                    else:
+                        self.data[self.var[i]].append(action['values'][i])
 
         # check if the table got user defiend primary key, and append it
-        if self.primary == '__index__':
-            index = self.index
+        if self.primary == 'index__':
+            self.data[self.primary].append(self.index)
             self.index += 1
-            self.data[self.primary].append(index)
 
-        # append other values
 
     def update(self, action):
         """

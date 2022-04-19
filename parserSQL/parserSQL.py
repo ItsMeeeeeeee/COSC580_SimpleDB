@@ -2,9 +2,6 @@
 
 import re
 
-
-# from case import *
-
 class SQLParser:
     def __init__(self):
         self.__action_map = {
@@ -20,8 +17,7 @@ class SQLParser:
             'DROP': self.__drop,
         }
         self.__pattern_map = {
-            'CREATE': r'(.*) {(.*)}',
-            'CREATE_2': r'(.*)\s(.*)',
+            'CREATE': r'(CREATE|create) (TABLE|table) (.*) \((.*)\)',
             'SELECT': r'(SELECT|select) (.*) (FROM|from) (.*)',
             'UPDATE': r'(UPDATE|update) (.*) (SET|set) (.*)',
             'INSERT': r'(INSERT|insert) (INTO|into) (.*) \((.*)\) (VALUES|values) \((.*)\)',
@@ -211,7 +207,7 @@ class SQLParser:
         # check if the values and definition is provided
         if ret:
             # extract the var name and its' type
-            vars = ret[0][1].split(',')
+            vars = ret[0][3].split(',')
             for var_type in vars:
                 detailed = var_type.strip().split(' ')
                 info['cols'][detailed[0]] = []
@@ -251,16 +247,19 @@ class SQLParser:
     # 删除数据库或数据表
     def __drop(self, statement):
         kind = statement[1]
+        name = statement[2]
 
-        if kind.upper() == 'DATABASES':
+        if kind.upper() == 'DATABASE':
             return {
                 'type': 'drop',
-                'kind': 'databases'
+                'kind': 'database',
+                'name' : name
             }
-        if kind.upper() == 'TABLES':
+        if kind.upper() == 'TABLE':
             return {
                 'type': 'drop',
-                'kind': 'tables'
+                'kind': 'table',
+                'name' : name
             }
 
 if __name__ == '__main__':
