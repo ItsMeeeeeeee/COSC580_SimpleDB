@@ -18,6 +18,7 @@ class SQLParser:
         }
         self.__pattern_map = {
             'CREATE': r'(CREATE|create) (TABLE|table) (.*) \((.*)\)',
+            'CREATE INDEX' : r'(CREATE|create) (INDEX|index) (.*) (ON|on) (.*) \((.*)\)',
             'SELECT': r'(SELECT|select) (.*) (FROM|from) (.*)',
             'UPDATE': r'(UPDATE|update) (.*) (SET|set) (.*)',
             'INSERT': r'(INSERT|insert) (INTO|into) (.*) \((.*)\) (VALUES|values) \((.*)\)',
@@ -203,14 +204,15 @@ class SQLParser:
     def __create(self, statement):
         comp = self.__get_comp('CREATE')
         ret = comp.findall(' '.join(statement))
-        info = {}
-        # set the tend first
-        info['type'] = 'create'
-        info['object'] = statement[1].lower()
-        info['name'] = statement[2]
-        info['cols'] = {}
+        
         # check if the values and definition is provided
         if ret:
+            info = {}
+            # set the tend first
+            info['type'] = 'create'
+            info['object'] = statement[1].lower()
+            info['name'] = statement[2]
+            info['cols'] = {}
             # extract the var name and its' type
             vars = ret[0][3].split(',')
             for var_type in vars:
@@ -220,8 +222,19 @@ class SQLParser:
                     info['cols'][detailed[0]].append(detailed[i])
             return info
         else:
-            print("Cannot Resolve Given Input!!!")
-            return None
+            comp = self.__get_comp('CREATE INDEX')
+            ret = comp.findall(' '.join(statement))
+            if ret:
+                info = {
+                    'type' : 'create index',
+                    'table' : ret[0][4],
+                    'name' : ret[0][2],
+                    'col' : ret[0][5]
+                }
+                return info
+            else:
+                print("Cannot Resolve Given Input!!!")
+                return None
 
     # 退出
     def __exit(self, _):
