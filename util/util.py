@@ -27,7 +27,7 @@ def get_more_equal_keys_list(list, value):
 
 
 # format print
-def _print(res):
+def _print(res, type):
     """
     Print the select relations
     :param res: THis is result json like
@@ -36,6 +36,15 @@ def _print(res):
        }
     :return:
     """
+    for col, value in res.items():
+        if type[col][0] == 'int':
+            for i in range(len(value)):
+                value[i] = int(value[i])
+        elif type[col][0] == 'float':
+            for i in range(len(value)):
+                value[i] = float(value[i])
+        res[col] = value
+
     tb = pt.PrettyTable()
     cols = list(res.keys())
     for col in cols:
