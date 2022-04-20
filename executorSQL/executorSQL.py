@@ -1,5 +1,6 @@
 from parserSQL.parserSQL import SQLParser
 from database.database import Table
+from util.util import _print
 
 
 class SQLExecuter:
@@ -35,7 +36,7 @@ class SQLExecuter:
     def _select(self, action):
         print(action)
         res = self.tables[action['table']].select(action)
-        print(res)
+        _print(res)
     
     def _createIndex(self, action):
         print(action)
