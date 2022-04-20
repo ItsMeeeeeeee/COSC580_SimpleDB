@@ -1,5 +1,7 @@
 from util import util
 from bplus_tree import BPlusTree
+from util.util import _print
+
 
 class Table:
     # {
@@ -133,7 +135,7 @@ class Table:
             print('Index: ', index_select)
             # delete data from table according to index in descending order
             result = self._select_data(index_select, fields)
-            return result
+            _print(result)
 
     def insert(self, action):
         # check the type of input, one is specify the columns they want to insert, other one does not
