@@ -1,6 +1,6 @@
 from executorSQL.executorSQL import SQLExecuter
 from parserSQL.parserSQL import SQLParser
-import util
+import util.util as util
 
 dd = {
     "index":[0,1,2,3,4],
