@@ -117,6 +117,7 @@ class Table:
 
         # set a condition check for only one constraint
         if len(index_list_select) == 1:
+            print('Index: ', index_list_select[0])
             return self._select_data(index_list_select[0], fields)
         else:
             index_select = index_list_select[0]
