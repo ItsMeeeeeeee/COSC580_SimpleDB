@@ -1,4 +1,5 @@
 from util import util
+from bplus_tree import BPlusTree
 
 class Table:
     # {
@@ -14,6 +15,8 @@ class Table:
         self.type = []
         # a dictionary of list, that used to store each columns' data
         self.data = {}
+        # btrees dictionary for create index
+        self.btrees = {}
 
         self._condition_map = {
             '=' : self._equal,
@@ -180,6 +183,23 @@ class Table:
         for i in data.keys():
             for j in tmp:
                 self.data[i][j] = data[i]
+
+    # create a bplustree for the given column
+    def createIndex(self, action):
+        # check if the columns is in this table
+        if action['col'] not in self.var:
+            print('ERROR! Cannot resolve the given input column!')
+            return
+        # init the name and tree
+        self.btrees[action['col']] = {
+            'name' : action['name'],
+            'tree' : BPlusTree()
+        }
+        # insert index as value where value as key
+        for i in range(len(self.data[action['col']])):
+            self.btrees[action['col']]['tree'].insert(self.data[action['col']][i], i)
+
+
 
     def checkColumn(self, input_col):
         table_col = [*self.data]

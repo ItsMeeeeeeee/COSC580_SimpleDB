@@ -15,7 +15,8 @@ class SQLExecuter:
         self.function = {
             'insert': self._insert,
             'create': self._create,
-            'search' : self._select
+            'search' : self._select,
+            'create index' : self._createIndex
         }
 
     def execute(self, statement):
@@ -35,3 +36,7 @@ class SQLExecuter:
         print(action)
         res = self.tables[action['table']].select(action)
         print(res)
+    
+    def _createIndex(self, action):
+        print(action)
+        self.tables[action['table']].createIndex(action)
