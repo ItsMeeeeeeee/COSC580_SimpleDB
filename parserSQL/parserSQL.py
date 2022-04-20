@@ -65,7 +65,9 @@ class SQLParser:
 
         conditions = []
         if len(statement) == 2:
-            if 'and' in statement[1].lower():
+            if 'and' not in statement[1].lower() and 'or' not in statement[1].lower():
+                conditions_list = [statement[1]]
+            elif 'and' in statement[1].lower():
                 conditions_list = self.__filter_space(statement[1].split("AND"))
                 action['condition_logic'] = 'AND'
             elif 'or' in statement[1].lower():
