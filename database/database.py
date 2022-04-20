@@ -118,7 +118,11 @@ class Table:
         # set a condition check for only one constraint
         if len(index_list_select) == 1:
             print('Index: ', index_list_select[0])
-            return self._select_data(index_list_select[0], fields)
+            result = self._select_data(index_list_select[0], fields)
+            type = {}
+            for var in result.keys():
+                type[var] =(self.type[self.var.index(var)])
+            return result, type
         else:
             index_select = index_list_select[0]
             if action['condition_logic'] == 'AND':
@@ -151,8 +155,10 @@ class Table:
                 print('Can not resolve input')
             else:
                 for i in range(len(action['values'])):
-                    if self.type[i][0].lower() == 'int' or self.type[i][0].lower() == 'float':
+                    if self.type[i][0].lower() == 'int':
                         self.data[self.var[i]].append(float(action['values'][i]))
+                    elif self.type[i][0].lower() == 'float':
+                        self.data[self.var[i]].append(int(action['values'][i]))
                     # elif self.type[i][0].lower() == 'boolean':
                     #     self.data[self.var[i]].append(bool(action['values'][i]))
                     else:

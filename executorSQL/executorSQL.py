@@ -35,8 +35,8 @@ class SQLExecuter:
     
     def _select(self, action):
         print(action)
-        res = self.tables[action['table']].select(action)
-        _print(res)
+        res, type = self.tables[action['table']].select(action)
+        _print(res, type)
     
     def _createIndex(self, action):
         print(action)
