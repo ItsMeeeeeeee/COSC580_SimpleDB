@@ -68,11 +68,15 @@ class SQLParser:
             if 'and' in statement[1].lower():
                 conditions_list = self.__filter_space(statement[1].split("AND"))
                 action['condition_logic'] = 'AND'
+                for cond in conditions_list:
+                    conditions.extend(self.__filter_space(cond.split(" ")))
             elif 'or' in statement[1].lower():
                 conditions_list = self.__filter_space(statement[1].split("OR"))
                 action['condition_logic'] = 'OR'
-            for cond in conditions_list:
-                conditions.extend(self.__filter_space(cond.split(" ")))
+                for cond in conditions_list:
+                    conditions.extend(self.__filter_space(cond.split(" ")))
+            else:
+                conditions.extend(self.__filter_space(statement[1].split(" ")))
 
         if conditions:
             if len(conditions) < 3:
