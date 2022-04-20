@@ -14,7 +14,6 @@ def get_less_keys_list(list, value):
 def get_less_equal_keys_list(list, value):
     return [index for index, v in enumerate(list) if v <= float(value)]
 
-
 def get_more_keys_list(list, value):
     return [index for index, v in enumerate(list) if v > float(value)]
 

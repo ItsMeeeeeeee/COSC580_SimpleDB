@@ -14,7 +14,8 @@ class SQLExecuter:
         # map the keywords with function
         self.function = {
             'insert': self._insert,
-            'create': self._create
+            'create': self._create,
+            'search' : self._select
         }
 
     def execute(self, statement):
@@ -29,3 +30,8 @@ class SQLExecuter:
     def _create(self, action):
         print(action)
         self.tables[action['name']] = Table(action['name'], action['cols'])
+    
+    def _select(self, action):
+        print(action)
+        res = self.tables[action['table']].select(action)
+        print(res)
