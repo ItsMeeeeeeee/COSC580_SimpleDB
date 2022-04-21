@@ -161,7 +161,7 @@ class Table:
             # delete data from table according to index in descending order
             result = self._delete_data(index_select)
             return result
-        
+    ## Select By Conditions
     def select(self, action):
         if action['fields'] == '*':
             fields = self.var
@@ -361,3 +361,7 @@ class Table:
     #             result_list.append(util.get_more_equal_keys_list(self.data[col], conu["value"]))
 
     #         return result_list
+
+    ### TODO
+    def find_index_by_value_columns(self, ):
+        pass
