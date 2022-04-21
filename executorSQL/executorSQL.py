@@ -112,8 +112,24 @@ class SQLExecuter:
         action_to_table2 = {
             'type': 'search',
             'table': [action['tables'][1]],
+            'condition_logic': 'AND',
             'fields': action['fields'],
             'conditions': action['conditions']
+        }
+        actions = {
+            'type': 'search',
+            'table': 'TABLE1',
+            'fields': '*',
+            'condition_logic': 'AND',
+            'conditions': {
+                'COL2': {
+                    'operation': '=',
+                    'value': '1'
+                },
+            'COL1': {
+                'operation': '=',
+                'value': 'YES'}
+            }
         }
         # self.tables[action['tables'][1]].
         print(res1)
