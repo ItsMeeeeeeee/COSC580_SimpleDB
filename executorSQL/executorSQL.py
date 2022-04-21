@@ -2,6 +2,7 @@ from parserSQL.parserSQL import SQLParser
 from database.database import Table
 from util.util import _print
 
+import shutil
 import pickle
 import os
 
@@ -12,6 +13,7 @@ class SQLExecuter:
         self.parser = SQLParser()
 
         self.database = {}
+        self.currentDB = None
 
         # init the dict to store each table and its' name
         # fill in the tables by using the given tables
@@ -27,7 +29,8 @@ class SQLExecuter:
             'create db' : self._createDatabase,
             'use' : self._useDatabase,
             'exit' : self._exit,
-            'show' : self._show
+            'show' : self._show,
+            'drop' : self._drop
         }
 
         self._load()
@@ -47,32 +50,44 @@ class SQLExecuter:
     # create table
     def _create(self, action):
         print(action)
-        if self.tables == None:
+        if self.currentDB == None:
             print("Did not Choose Database!")
             return 
         self.tables[action['name']] = Table(action['name'], action['cols'])
+        self._updateTable(self, {
+            'database' : self.currentDB,
+            'name' : action['name']
+        })
 
     # create index on specific table
     def _createIndex(self, action):
         print(action)
-        if self.tables == None:
+        if self.currentDB == None:
             print("Did not Choose Database!")
             return 
         self.tables[action['table']].createIndex(action)
+        self._updateTable(self, {
+            'database' : self.currentDB,
+            'name' : action['table']
+        })
 
     # insert data into sepcific table
     def _insert(self, action):
         print(action)
-        if self.tables == None:
+        if self.currentDB == None:
             print("Did not Choose Database!")
             return 
         self.tables[action['table']].insert(action)
         self.tables[action['table']].updateIndex()
+        self._updateTable(self, {
+            'database' : self.currentDB,
+            'name' : action['table']
+        })
     
     # get data from table
     def _select(self, action):
         print(action)
-        if self.tables == None:
+        if self.currentDB == None:
             print("Did not Choose Database!")
             return 
         res, type = self.tables[action['table']].select(action)
@@ -81,11 +96,15 @@ class SQLExecuter:
     
     def _delete(self, action):
         print(action)
-        if self.tables == None:
+        if self.currentDB == None:
             print("Did not Choose Database!")
             return 
         self.tables[action['table']].delete(action)
         self.tables[action['table']].updateIndex()
+        self._updateTable(self, {
+            'database' : self.currentDB,
+            'name' : action['table']
+        })
 
     def _createDatabase(self, action):
         print(action)
@@ -97,6 +116,7 @@ class SQLExecuter:
     def _useDatabase(self, action):
         print(action)
         if action['database'] in self.database.keys():
+            self.currentDB = action['database']
             self.tables = self.database[action['database']]
         else:
             print("No Database Named %s", action['database'])
@@ -107,12 +127,48 @@ class SQLExecuter:
             databases = list(self.database.keys())
             print(databases)
         else:
-            if self.tables == None:
+            if self.currentDB == None:
                 print("Did not Choose Database!")
                 return 
             tables = list(self.tables.keys())
             print(tables)
 
+    def _drop(self, action):
+        # print(action)
+        if action['kind'] == 'database':
+            if action['name'] not in self.database.keys():
+                print("No Database Named %s", action['name'])
+            self._dropDB(action)
+            del self.database[action['name']]
+            if self.currentDB == action['name']:
+                self.currentDB = None
+        else:
+            if self.currentDB == None:
+                print("Did not Choose Database!")
+                return 
+            if action['name'] not in self.tables.keys():
+                print("No Table Named %s", action['name'])
+            action['database'] = self.currentDB
+            self._dropTable(action)
+            del self.database[self.currentDB][action['name']]
+            self.tables = self.database[self.currentDB]
+    def _dropDB(self, action):
+        print(action)
+        folderpath = os.path.join("db", action['name'])
+        shutil.rmtree(folderpath)
+    def _dropTable(self, action):
+        print(action)
+        filepath = os.path.join("db", action['database'])
+        filepath = os.path.join(filepath, action['name'])
+        os.remove(filepath)
+    def _updateTable(self, action):
+        print(action)
+        filepath = os.path.join("db", action['database'])
+        filepath = os.path.join(filepath, action['name'])
+        os.remove(filepath)
+        f = open(filepath, 'wb')
+        pickle.dump(self.tables[action['name']], f)
+        f.close()
 
     def _exit(self, action):
         print(action)
@@ -129,6 +185,9 @@ class SQLExecuter:
                         f = open(os.path.join(path, table_name), 'rb')
                         self.database[db_name][table_name] = pickle.load(f)
                         f.close()
+
+    def _save(self, table):
+        path = "db"
     def _save(self):
         path = "db"
         f = None

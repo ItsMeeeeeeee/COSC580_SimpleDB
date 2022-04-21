@@ -278,20 +278,23 @@ class SQLParser:
     # 删除数据库或数据表
     def __drop(self, statement):
         kind = statement[1]
-        name = statement[2]
-
-        if kind.upper() == 'DATABASE':
+        if len(statement) < 3:
+            print("ERROR!!! Cannot Resolve Given Input!")
+            return 
+        elif kind.upper() == 'DATABASE':
             return {
                 'type': 'drop',
                 'kind': 'database',
-                'name' : name
+                'name' : statement[2]
             }
-        if kind.upper() == 'TABLE':
+        elif kind.upper() == 'TABLE':
             return {
                 'type': 'drop',
                 'kind': 'table',
-                'name' : name
+                'name' : statement[2]
             }
+        print("ERROR!!! Cannot Resolve Given Input!")
+        return 
 
 if __name__ == '__main__':
     d = SQLParser().parse(input(">"))

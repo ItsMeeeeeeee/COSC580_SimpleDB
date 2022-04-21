@@ -48,7 +48,6 @@ class Table:
         except Exception:
             print('Error! Cannot Resolve Given Input')
             return
-            
     def _format(self, col, value):
         if self.type[self.var.index(col)][0] == 'int':
             return int(value)
@@ -242,25 +241,54 @@ class Table:
             self.index += 1
 
 
+    # def update(self, action):
+    #     """
+
+    #     :param actions:
+    #     :return:
+    #     """
+    #     data = action['data']
+    #     conditions = action['conditions']
+
+    #     if not self.checkColumn([*data]):
+    #         return
+
+
+
+    #     list_update = self.condition_filter(conditions)
+
+    #     tmp = list_update[0]
+    #     for i in range(len(list_update)):
+    #         tmp = [val for val in tmp if val in list_update[i]]
+    #     for i in data.keys():
+    #         for j in tmp:
+    #             self.data[i][j] = data[i]
+    
     def update(self, action):
-        """
+        
+        if not action.get('conditions'):
+            print("ERROR! Cannot Resolve Given Input!")
+            return 
 
-        :param actions:
-        :return:
-        """
+        cols_select = []
+        conditions_select = []
+        for k, v in action["conditions"].items():
+            cols_select.append(k)
+            conditions_select.append(v)
+        index_list_select = []
+        for i in range(len(conditions_select)):
+            cond = conditions_select[i]
+            col = cols_select[i]
+            if cond["operation"] not in self._condition_map:
+                print('Error! Cannot Resolve Given Input')
+                return
+            tmp = self._filter(cond, col)
+            index_list_select.append(tmp)
+        tmp = index_list_select[0]
+        for i in range(len(index_list_select)):
+            tmp = [val for val in tmp if val in index_list_select[i]]
+        
         data = action['data']
-        conditions = action['conditions']
-
-        if not self.checkColumn([*data]):
-            return
-
-
-
-        list_update = self.condition_filter(conditions)
-
-        tmp = list_update[0]
-        for i in range(len(list_update)):
-            tmp = [val for val in tmp if val in list_update[i]]
         for i in data.keys():
             for j in tmp:
                 self.data[i][j] = data[i]
@@ -308,28 +336,28 @@ class Table:
 
         return False
 
-    def condition_filter(self, conditions):
-        col_operate = []
-        con_operate = []
-        for k, v in conditions.items():
-            col_operate.append(k)
-            con_operate.append(v)
+    # def condition_filter(self, conditions):
+    #     col_operate = []
+    #     con_operate = []
+    #     for k, v in conditions.items():
+    #         col_operate.append(k)
+    #         con_operate.append(v)
 
-        result_list = []
-        for i in range(len(con_operate)):
-            conu = con_operate[i]
-            col = col_operate[i]
-            if self.is_number(conu["value"]):
-                conu["value"] = int(conu["value"])
-            if conu["operation"] == '=':
-                result_list.append(util.get_equal_keys_list(self.data[col], conu["value"]))
-            elif conu["operation"] == '<':
-                result_list.append(util.get_less_keys_list(self.data[col], conu["value"]))
-            elif conu["operation"] == '>':
-                result_list.append(util.get_more_keys_list(self.data[col], conu["value"]))
-            elif conu["operation"] == '<=':
-                result_list.append(util.get_less_equal_keys_list(self.data[col], conu["value"]))
-            elif conu["operation"] == '>=':
-                result_list.append(util.get_more_equal_keys_list(self.data[col], conu["value"]))
+    #     result_list = []
+    #     for i in range(len(con_operate)):
+    #         conu = con_operate[i]
+    #         col = col_operate[i]
+    #         if self.is_number(conu["value"]):
+    #             conu["value"] = int(conu["value"])
+    #         if conu["operation"] == '=':
+    #             result_list.append(util.get_equal_keys_list(self.data[col], conu["value"]))
+    #         elif conu["operation"] == '<':
+    #             result_list.append(util.get_less_keys_list(self.data[col], conu["value"]))
+    #         elif conu["operation"] == '>':
+    #             result_list.append(util.get_more_keys_list(self.data[col], conu["value"]))
+    #         elif conu["operation"] == '<=':
+    #             result_list.append(util.get_less_equal_keys_list(self.data[col], conu["value"]))
+    #         elif conu["operation"] == '>=':
+    #             result_list.append(util.get_more_equal_keys_list(self.data[col], conu["value"]))
 
-            return result_list
+    #         return result_list
