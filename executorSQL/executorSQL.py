@@ -55,7 +55,7 @@ class SQLExecuter:
             print("Did not Choose Database!")
             return 
         self.tables[action['name']] = Table(action['name'], action['cols'])
-        self._updateTable(self, {
+        self._updateTable({
             'database' : self.currentDB,
             'name' : action['name']
         })
@@ -67,7 +67,7 @@ class SQLExecuter:
             print("Did not Choose Database!")
             return 
         self.tables[action['table']].createIndex(action)
-        self._updateTable(self, {
+        self._updateTable({
             'database' : self.currentDB,
             'name' : action['table']
         })
@@ -80,7 +80,7 @@ class SQLExecuter:
             return 
         self.tables[action['table']].insert(action)
         self.tables[action['table']].updateIndex()
-        self._updateTable(self, {
+        self._updateTable({
             'database' : self.currentDB,
             'name' : action['table']
         })
@@ -130,7 +130,7 @@ class SQLExecuter:
             return 
         self.tables[action['table']].delete(action)
         self.tables[action['table']].updateIndex()
-        self._updateTable(self, {
+        self._updateTable({
             'database' : self.currentDB,
             'name' : action['table']
         })
@@ -194,7 +194,8 @@ class SQLExecuter:
         print(action)
         filepath = os.path.join("db", action['database'])
         filepath = os.path.join(filepath, action['name'])
-        os.remove(filepath)
+        if os.path.exists(filepath):
+            os.remove(filepath)
         f = open(filepath, 'wb')
         pickle.dump(self.tables[action['name']], f)
         f.close()
