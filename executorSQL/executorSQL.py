@@ -30,11 +30,12 @@ class SQLExecuter:
             'use' : self._useDatabase,
             'exit' : self._exit,
             'show' : self._show,
-            'drop' : self._drop
+            'drop' : self._drop,
+            'search join': self._select_join,
         }
 
         self._load()
-
+    # TODO exit to exit
     def run(self):
         while True:
             statement = input("sdb> ")
@@ -93,6 +94,34 @@ class SQLExecuter:
         res, type = self.tables[action['table']].select(action)
         self.tables[action['table']].updateIndex()
         _print(res, type)
+
+    def _select_join(self, action):
+        print(f"Now using join SQL!", action)
+        if self.currentDB == None:
+            print("Did not Choose Database!")
+            return
+        # first we need to get first tables data
+        action_to_table1 = {
+            'type': 'search',
+            'table': [action['tables'][0]],
+            'fields': action['fields'],
+            'conditions': action['conditions']
+        }
+        res1, type1 = self.tables[action['tables'][0]].select(action_to_table1)
+        # use join fields to search table2 based on the values we select in table1
+        action_to_table2 = {
+            'type': 'search',
+            'table': [action['tables'][1]],
+            'fields': action['fields'],
+            'conditions': action['conditions']
+        }
+        # self.tables[action['tables'][1]].
+        print(res1)
+        print(type1)
+        # {'COL1': ['YES', 'YES', 'YES', 'No', 'YES', 'YES', 'YES', 'No', 'YES'],
+        #  'COL2': [7, 6, 4, 9, 11, 15, 18, 19, 19]}
+        # {'COL1': ['Boolean'], 'COL2': ['int']}
+        _print(res1, type1)
     
     def _delete(self, action):
         print(action)
