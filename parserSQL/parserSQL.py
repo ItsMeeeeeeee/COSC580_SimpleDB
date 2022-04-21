@@ -19,6 +19,7 @@ class SQLParser:
         self.__pattern_map = {
             'CREATE': r'(CREATE|create) (TABLE|table) (.*) \((.*)\)',
             'CREATE INDEX' : r'(CREATE|create) (INDEX|index) (.*) (ON|on) (.*) \((.*)\)',
+            'CREATE DATABASE' : r'(CREATE|create) (DATABASE|database) (.*)',
             'SELECT': r'(SELECT|select) (.*) (FROM|from) (.*)',
             'UPDATE': r'(UPDATE|update) (.*) (SET|set) (.*)',
             'INSERT': r'(INSERT|insert) (INTO|into) (.*) \((.*)\) (VALUES|values) \((.*)\)',
@@ -43,7 +44,7 @@ class SQLParser:
         base_statement = self.__filter_space(statement[0].split(" "))
 
         # SQL 语句一般由最少三个关键字组成，这里设定长度小于 2 时，又非退出等命令，则为错误语法
-        if len(base_statement) < 2 and base_statement[0] not in ['exit', 'quit']:
+        if len(base_statement) < 2 and base_statement[0].lower() not in ['exit', 'quit', 'show']:
             print('Syntax Error for: %s' % statement)
             return
 
@@ -206,15 +207,23 @@ class SQLParser:
         }
 
     def __create(self, statement):
+        comp = self.__get_comp('CREATE DATABASE')
+        ret = comp.findall(' '.join(statement))
+        if ret:
+            info = {
+                'type' : 'create db',
+                'name' : ret[0][2]
+            }
+            return info
+
+
         comp = self.__get_comp('CREATE')
         ret = comp.findall(' '.join(statement))
-        
         # check if the values and definition is provided
         if ret:
             info = {}
             # set the tend first
             info['type'] = 'create'
-            info['object'] = statement[1].lower()
             info['name'] = statement[2]
             info['cols'] = {}
             # extract the var name and its' type
@@ -225,20 +234,20 @@ class SQLParser:
                 for i in range(1, len(detailed)):
                     info['cols'][detailed[0]].append(detailed[i])
             return info
-        else:
-            comp = self.__get_comp('CREATE INDEX')
-            ret = comp.findall(' '.join(statement))
-            if ret:
-                info = {
-                    'type' : 'create index',
-                    'table' : ret[0][4],
-                    'name' : ret[0][2],
-                    'col' : ret[0][5]
-                }
-                return info
-            else:
-                print("Cannot Resolve Given Input!!!")
-                return None
+
+        comp = self.__get_comp('CREATE INDEX')
+        ret = comp.findall(' '.join(statement))
+        if ret:
+            info = {
+                'type' : 'create index',
+                'table' : ret[0][4],
+                'name' : ret[0][2],
+                'col' : ret[0][5]
+            }
+            return info
+        
+        print("Cannot Resolve Given Input!!!")
+        return None
 
     # 退出
     def __exit(self, _):
