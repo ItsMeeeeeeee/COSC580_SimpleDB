@@ -22,6 +22,7 @@ class SQLExecuter:
             'insert': self._insert,
             'create': self._create,
             'search' : self._select,
+            'delete' : self._delete,
             'create index' : self._createIndex,
             'create db' : self._createDatabase,
             'use' : self._useDatabase,
@@ -30,6 +31,12 @@ class SQLExecuter:
         }
 
         self._load()
+
+    def run(self):
+        while True:
+            statement = input("sdb> ")
+            self.execute(statement)
+
 
     # execute the user entered statement
     def execute(self, statement):
@@ -72,6 +79,14 @@ class SQLExecuter:
         self.tables[action['table']].updateIndex()
         _print(res, type)
     
+    def _delete(self, action):
+        print(action)
+        if self.tables == None:
+            print("Did not Choose Database!")
+            return 
+        self.tables[action['table']].delete(action)
+        self.tables[action['table']].updateIndex()
+
     def _createDatabase(self, action):
         print(action)
         if action['name'] not in self.database.keys():
