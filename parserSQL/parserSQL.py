@@ -2,6 +2,7 @@
 
 import re
 
+
 class SQLParser:
     def __init__(self):
         self.__action_map = {
@@ -15,11 +16,12 @@ class SQLParser:
             'QUIT': self.__quit,
             'SHOW': self.__show,
             'DROP': self.__drop,
+            'JOIN': self.__join,
         }
         self.__pattern_map = {
             'CREATE': r'(CREATE|create) (TABLE|table) (.*) \((.*)\)',
-            'CREATE INDEX' : r'(CREATE|create) (INDEX|index) (.*) (ON|on) (.*) \((.*)\)',
-            'CREATE DATABASE' : r'(CREATE|create) (DATABASE|database) (.*)',
+            'CREATE INDEX': r'(CREATE|create) (INDEX|index) (.*) (ON|on) (.*) \((.*)\)',
+            'CREATE DATABASE': r'(CREATE|create) (DATABASE|database) (.*)',
             'SELECT': r'(SELECT|select) (.*) (FROM|from) (.*)',
             'UPDATE': r'(UPDATE|update) (.*) (SET|set) (.*)',
             'INSERT': r'(INSERT|insert) (INTO|into) (.*) \((.*)\) (VALUES|values) \((.*)\)',
@@ -49,7 +51,10 @@ class SQLParser:
             return
 
         # 在定义字典 __action_map 时，字典的键使用的是大写字符，此处转换为大写格式
-        action_type = base_statement[0].upper()
+        if "JOIN" in base_statement or "join" in base_statement:
+            action_type = "JOIN"
+        else:
+            action_type = base_statement[0].upper()
 
         if action_type not in self.__action_map:
             print('Syntax Error for: %s' % statement)
@@ -99,6 +104,28 @@ class SQLParser:
         return re.compile(self.__pattern_map[action])
 
     # -----------------** 基于数据表的操作 **---------------------#
+    def __join(self, statement):
+        comp = self.__get_comp('SELECT')
+        ret = comp.findall(' '.join(statement))[0]
+        print(ret)
+        if ret and len(ret) == 4:
+            fields = ret[1]
+            tables = []
+            join_fields = []
+            left = ret[3].split(" ")
+            tables.append(left[0])
+            tables.append(left[2])
+            join_fields.append(left[-1])
+            join_fields.append(left[-3])
+            if fields != '*':
+                fields = [field.strip() for field in fields.split(',')]
+            return {
+                'type': 'search join',
+                'tables': tables,
+                'fields': fields,
+                'join fields': join_fields,
+            }
+
     def __select(self, statement):
         # print('statement:', statement)
         comp = self.__get_comp('SELECT')
@@ -211,11 +238,10 @@ class SQLParser:
         ret = comp.findall(' '.join(statement))
         if ret:
             info = {
-                'type' : 'create db',
-                'name' : ret[0][2]
+                'type': 'create db',
+                'name': ret[0][2]
             }
             return info
-
 
         comp = self.__get_comp('CREATE')
         ret = comp.findall(' '.join(statement))
@@ -239,13 +265,13 @@ class SQLParser:
         ret = comp.findall(' '.join(statement))
         if ret:
             info = {
-                'type' : 'create index',
-                'table' : ret[0][4],
-                'name' : ret[0][2],
-                'col' : ret[0][5]
+                'type': 'create index',
+                'table': ret[0][4],
+                'name': ret[0][2],
+                'col': ret[0][5]
             }
             return info
-        
+
         print("Cannot Resolve Given Input!!!")
         return None
 
@@ -280,23 +306,23 @@ class SQLParser:
         kind = statement[1]
         if len(statement) < 3:
             print("ERROR!!! Cannot Resolve Given Input!")
-            return 
+            return
         elif kind.upper() == 'DATABASE':
             return {
                 'type': 'drop',
                 'kind': 'database',
-                'name' : statement[2]
+                'name': statement[2]
             }
         elif kind.upper() == 'TABLE':
             return {
                 'type': 'drop',
                 'kind': 'table',
-                'name' : statement[2]
+                'name': statement[2]
             }
         print("ERROR!!! Cannot Resolve Given Input!")
-        return 
+        return
+
 
 if __name__ == '__main__':
     d = SQLParser().parse(input(">"))
     print(f'tokens : {d}')
-
