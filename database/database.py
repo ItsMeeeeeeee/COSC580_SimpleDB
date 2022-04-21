@@ -98,7 +98,10 @@ class Table:
         self._delete_data(index_delete)
         
     def select(self, action):
-        fields = action["fields"]
+        if action['fields'] == '*':
+            fields = self.var
+        else:    
+            fields = action["fields"]
         cols_select = []
         conditions_select = []
         for k, v in action["conditions"].items():
