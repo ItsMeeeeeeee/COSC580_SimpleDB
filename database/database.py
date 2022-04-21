@@ -42,16 +42,29 @@ class Table:
         self.data[self.primary] = []
 
     # the helper function help condiction 
+    def _filter(self, cond, col):
+        try:
+            return self._condition_map[cond["operation"]](cond, col)
+        except Exception:
+            print('Error! Cannot Resolve Given Input')
+            return
+            
+    def _format(self, col, value):
+        if self.type[self.var.index(col)][0] == 'int':
+            return int(value)
+        elif self.type[self.var.index(col)][0] == 'float':
+            return  float(value)
+        return value
     def _equal(self, cond, col):
-        return util.get_equal_keys_list(self.data[col], cond["value"])
+        return util.get_equal_keys_list(self.data[col], self._format(col, cond["value"]))
     def _bigger(self, cond, col):
-        return util.get_more_keys_list(self.data[col], cond["value"])
+        return util.get_more_keys_list(self.data[col], self._format(col, cond["value"]))
     def _smaller(self, cond, col):
-        return util.get_less_keys_list(self.data[col], cond["value"])
+        return util.get_less_keys_list(self.data[col], self._format(col, cond["value"]))
     def _biggerAndEqual(self, cond, col):
-        return util.get_more_equal_keys_list(self.data[col], cond["value"])
+        return util.get_more_equal_keys_list(self.data[col], self._format(col, cond["value"]))
     def _smallerAndEqual(self, cond, col):
-        return util.get_less_equal_keys_list(self.data[col], cond["value"])
+        return util.get_less_equal_keys_list(self.data[col], self._format(col, cond["value"]))
         # return [index for index, v in enumerate(self.data[col]) if v <= float(cond["value"])]
 
     # update index btree after each operation
@@ -77,10 +90,12 @@ class Table:
         return 'index__'
 
     def _delete_data(self, index_delete):
+        # sort the index list in decending order so we can remove all in once without error
+        index_delete.sort(reverse=True)
         for index in index_delete:
             for col in self.var:
                 del self.data[col][index]
-            if self.primary == '__index__':
+            if self.primary == 'index__':
                 del self.data[self.primary][index]
     
     # a helper function used to help select function to get corresponding info
@@ -95,36 +110,82 @@ class Table:
 
 ########################################################################################################
 
+    # def delete(self, action):
+    #     # get intersection
+        
+    #     index_list_delete = self.condition_filter(action["conditions"])
+    #     index_delete = index_list_delete[0]
+    #     for i in range(1, len(index_list_delete)):
+    #         index_delete = list(set(index_delete).intersection(index_list_delete[i]))
+    #     index_delete.sort(reverse=True)
+    #     # delete data from table according to index in descending order
+    #     self._delete_data(index_delete)
+    
     def delete(self, action):
-        # get intersection
-        index_list_delete = self.condition_filter(action["conditions"])
-        index_delete = index_list_delete[0]
-        for i in range(1, len(index_list_delete)):
-            index_delete = list(set(index_delete).intersection(index_list_delete[i]))
-        index_delete.sort(reverse=True)
-        # delete data from table according to index in descending order
-        self._delete_data(index_delete)
+        if action.get('conditions'):
+            cols_select = []
+            conditions_select = []
+            for k, v in action["conditions"].items():
+                cols_select.append(k)
+                conditions_select.append(v)
+
+            index_list_select = []
+            for i in range(len(conditions_select)):
+                cond = conditions_select[i]
+                col = cols_select[i]
+                if cond["operation"] not in self._condition_map:
+                    print('Error! Cannot Resolve Given Input')
+                    return
+                tmp = self._filter(cond, col)
+                index_list_select.append(tmp)
+        else:
+            print("ERROR! Cannot Resolve Given Input!")
+            return 
+
+        # set a condition check for only one constraint
+        if len(index_list_select) == 1:
+            print('Index: ', index_list_select[0])
+            result = self._delete_data(index_list_select[0])
+        else:
+            index_select = index_list_select[0]
+            if action['condition_logic'] == 'AND':
+                # get intersection
+                for i in range(1, len(index_list_select)):
+                    index_select = list(set(index_select).intersection(index_list_select[i]))
+                index_select.sort()
+            elif action['condition_logic'] == 'OR':
+                # get intersection
+                for i in range(1, len(index_list_select)):
+                    index_select = list(set(index_select).union(index_list_select[i]))
+                index_select.sort()
+            print('Index: ', index_select)
+            # delete data from table according to index in descending order
+            result = self._delete_data(index_select)
+            return result
         
     def select(self, action):
         if action['fields'] == '*':
             fields = self.var
         else:    
             fields = action["fields"]
-        cols_select = []
-        conditions_select = []
-        for k, v in action["conditions"].items():
-            cols_select.append(k)
-            conditions_select.append(v)
+        if action.get('conditions'):
+            cols_select = []
+            conditions_select = []
+            for k, v in action["conditions"].items():
+                cols_select.append(k)
+                conditions_select.append(v)
 
-        index_list_select = []
-        for i in range(len(conditions_select)):
-            cond = conditions_select[i]
-            col = cols_select[i]
-            if cond["operation"] not in self._condition_map:
-                print('Error! Cannot Resolve Given Input')
-                return
-            tmp = self._condition_map[cond["operation"]](cond, col)
-            index_list_select.append(tmp)
+            index_list_select = []
+            for i in range(len(conditions_select)):
+                cond = conditions_select[i]
+                col = cols_select[i]
+                if cond["operation"] not in self._condition_map:
+                    print('Error! Cannot Resolve Given Input')
+                    return
+                tmp = self._filter(cond, col)
+                index_list_select.append(tmp)
+        else:
+            index_list_select = [[i for i in range(len(self.data[self.var[0]]))]]
 
         # set a condition check for only one constraint
         if len(index_list_select) == 1:
@@ -167,9 +228,9 @@ class Table:
             else:
                 for i in range(len(action['values'])):
                     if self.type[i][0].lower() == 'int':
-                        self.data[self.var[i]].append(float(action['values'][i]))
-                    elif self.type[i][0].lower() == 'float':
                         self.data[self.var[i]].append(int(action['values'][i]))
+                    elif self.type[i][0].lower() == 'float':
+                        self.data[self.var[i]].append(float(action['values'][i]))
                     # elif self.type[i][0].lower() == 'boolean':
                     #     self.data[self.var[i]].append(bool(action['values'][i]))
                     else:
