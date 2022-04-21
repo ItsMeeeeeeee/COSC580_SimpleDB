@@ -54,8 +54,16 @@ class Table:
         return util.get_less_equal_keys_list(self.data[col], cond["value"])
         # return [index for index, v in enumerate(self.data[col]) if v <= float(cond["value"])]
 
-    # save each columns' name and type to s
-    # elf
+    # update index btree after each operation
+    def updateIndex(self):
+        if self.btrees == {}:
+            return
+        for name in self.btrees.keys():
+            self.btrees[name]['tree'] = BPlusTree() 
+            for i in range(len(self.data[name])):
+                self.btrees[name]['tree'].insert(self.data[name][i], i)
+
+    # save each columns' name and type to self
     def _init_var_type(self, var_type):
         for var, type in var_type.items():
             self.var.append(var)
