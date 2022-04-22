@@ -124,9 +124,9 @@ class Table:
         if action.get('conditions'):
             cols_select = []
             conditions_select = []
-            for k, v in action["conditions"].items():
-                cols_select.append(k)
-                conditions_select.append(v)
+            for condition in action["conditions"]:
+                cols_select.append(condition['field'])
+                conditions_select.append(condition['cond'])
 
             index_list_select = []
             for i in range(len(conditions_select)):
@@ -170,9 +170,9 @@ class Table:
         if action.get('conditions'):
             cols_select = []
             conditions_select = []
-            for k, v in action["conditions"].items():
-                cols_select.append(k)
-                conditions_select.append(v)
+            for condition in action["conditions"]:
+                cols_select.append(condition['field'])
+                conditions_select.append(condition['cond'])
 
             index_list_select = []
             for i in range(len(conditions_select)):
@@ -209,7 +209,10 @@ class Table:
             print('Index: ', index_select)
             # delete data from table according to index in descending order
             result = self._select_data(index_select, fields)
-            return result
+            type = {}
+            for var in result.keys():
+                type[var] =(self.type[self.var.index(var)])
+            return result, type
 
     def insert(self, action):
         # check the type of input, one is specify the columns they want to insert, other one does not
@@ -272,9 +275,9 @@ class Table:
 
         cols_select = []
         conditions_select = []
-        for k, v in action["conditions"].items():
-            cols_select.append(k)
-            conditions_select.append(v)
+        for condition in action["conditions"]:
+            cols_select.append(condition['field'])
+            conditions_select.append(condition['cond'])
         index_list_select = []
         for i in range(len(conditions_select)):
             cond = conditions_select[i]

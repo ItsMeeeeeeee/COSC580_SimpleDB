@@ -50,3 +50,11 @@ def _print(res, type):
     for col in cols:
         tb.add_column(col, res[col])
     print(tb)
+
+
+def merge_dict(result, res1):
+    for k, v in res1.items():
+        if result.get(k, False):
+            continue
+        result[k] = v
+    return result
