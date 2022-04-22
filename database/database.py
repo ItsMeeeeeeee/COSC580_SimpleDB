@@ -218,6 +218,7 @@ class Table:
     def select(self, action):
         if action['fields'] == '*':
             fields = self.var
+            filter=['']
         else:
             fields = action["fields"]
             fields, filter = self.check_filter(fields)

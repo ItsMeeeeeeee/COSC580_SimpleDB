@@ -16,7 +16,7 @@ p.execute("USE db")
 # p.execute("INSERT INTO TABLE2 VALUES (YES, 18)")
 # p.execute("INSERT INTO TABLE2 VALUES (No, 22)")
 # p.execute("CREATE INDEX index1 ON TABLE1 (COL2) ")
-p.execute("SELECT COL1, COL2 FROM TABLE1")
+p.execute("SELECT COUNT(COL1), AVG(COL2) FROM TABLE1")
 # p.execute("SELECT * FROM TABLE2")
 # todo TABLE.COL --> CONDITION
 # p.execute("UPDATE TABLE1 set COL1 = YES, COL2 = 6 WHERE COL2 = 4 OR COL2 = 10 ")
