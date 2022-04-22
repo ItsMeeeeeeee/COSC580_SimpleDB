@@ -107,10 +107,3 @@ class BPlusTree:
             node = node.children[0]
         return height
 
-
-if __name__ == '__main__':
-    t = BPlusTree(32)
-    nums = [55,44,65,16,80,74,14,19,95,36,2,90,74,94,27,89,85]
-    for x in nums:
-        t.insert(x, x)
-    print(t.items())

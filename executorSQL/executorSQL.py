@@ -36,7 +36,7 @@ class SQLExecuter:
 
         self._load()
 
-    # TODO exit to exit
+    # exit to exit
     def run(self):
         while True:
             statement = input("sdb> ")

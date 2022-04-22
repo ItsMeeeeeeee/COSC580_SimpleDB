@@ -42,15 +42,15 @@ class SQLParser:
         else:
             statement = statement.split("WHERE")
 
-        # 基于空格实现SQL语句的split，取出关键字
+
         base_statement = self.__filter_space(statement[0].split(" "))
 
-        # SQL 语句一般由最少三个关键字组成，这里设定长度小于 2 时，又非退出等命令，则为错误语法
-        if len(base_statement) < 2 and base_statement[0].lower() not in ['exit', 'quit', 'show']:
+
+        if len(base_statement) < 2 and base_statement[0].lower() not in ['exit', 'show']:
             print('Syntax Error for: %s' % statement)
             return
 
-        # 在定义字典 __action_map 时，字典的键使用的是大写字符，此处转换为大写格式
+
         if "JOIN" in base_statement or "join" in base_statement:
             action_type = "JOIN"
         else:
@@ -60,7 +60,7 @@ class SQLParser:
             print('Syntax Error for: %s' % statement)
             return
 
-        # 根据字典得到对应的值
+
         # print('parse statement:',statement,action_type)
         action = self.__action_map[action_type](base_statement)
         # print('parse action:', action)
@@ -110,7 +110,7 @@ class SQLParser:
     def __get_comp(self, action):
         return re.compile(self.__pattern_map[action])
 
-    # -----------------** 基于数据表的操作 **---------------------#
+
     def __join(self, statement):
         comp = self.__get_comp('SELECT')
         ret = comp.findall(' '.join(statement))[0]
@@ -186,7 +186,6 @@ class SQLParser:
             'table': statement[2]
         }
 
-    # 插入只支持"INSERT INTO 表名称 VALUES (值1, 值2,....)"
     def __insert(self, statement):
         comp = self.__get_comp('INSERT')
         ret = comp.findall(' '.join(statement))
@@ -235,8 +234,6 @@ class SQLParser:
 
         return None
 
-    # -----------------** 基于数据库的操作 **---------------------#
-    # 选择使用的数据库
     def __use(self, statement):
         return {
             'type': 'use',
@@ -285,18 +282,12 @@ class SQLParser:
         print("Cannot Resolve Given Input!!!")
         return None
 
-    # 退出
+
     def __exit(self, _):
         return {
             'type': 'exit'
         }
 
-    def __quit(self, _):
-        return {
-            'type': 'quit'
-        }
-
-    # 查看数据库列表或数据表 列表
     def __show(self, statement):
         kind = statement[1]
 
@@ -310,8 +301,7 @@ class SQLParser:
                 'type': 'show',
                 'kind': 'tables'
             }
-
-    # 删除数据库或数据表
+            
     def __drop(self, statement):
         kind = statement[1]
         if len(statement) < 3:
@@ -332,7 +322,3 @@ class SQLParser:
         print("ERROR!!! Cannot Resolve Given Input!")
         return
 
-
-if __name__ == '__main__':
-    d = SQLParser().parse(input(">"))
-    print(f'tokens : {d}')
