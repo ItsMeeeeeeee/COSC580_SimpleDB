@@ -116,17 +116,6 @@ class Table:
 
     ########################################################################################################
 
-    # def delete(self, action):
-    #     # get intersection
-
-    #     index_list_delete = self.condition_filter(action["conditions"])
-    #     index_delete = index_list_delete[0]
-    #     for i in range(1, len(index_list_delete)):
-    #         index_delete = list(set(index_delete).intersection(index_list_delete[i]))
-    #     index_delete.sort(reverse=True)
-    #     # delete data from table according to index in descending order
-    #     self._delete_data(index_delete)
-
     def delete(self, action):
         if action.get('conditions'):
             cols_select = []
@@ -251,27 +240,6 @@ class Table:
             self.data[self.primary].append(self.index)
             self.index += 1
 
-    # def update(self, action):
-    #     """
-
-    #     :param actions:
-    #     :return:
-    #     """
-    #     data = action['data']
-    #     conditions = action['conditions']
-
-    #     if not self.checkColumn([*data]):
-    #         return
-
-    #     list_update = self.condition_filter(conditions)
-
-    #     tmp = list_update[0]
-    #     for i in range(len(list_update)):
-    #         tmp = [val for val in tmp if val in list_update[i]]
-    #     for i in data.keys():
-    #         for j in tmp:
-    #             self.data[i][j] = data[i]
-
     def update(self, action):
 
         if not action.get('conditions'):
@@ -357,29 +325,3 @@ class Table:
             pass
 
         return False
-
-    # def condition_filter(self, conditions):
-    #     col_operate = []
-    #     con_operate = []
-    #     for k, v in conditions.items():
-    #         col_operate.append(k)
-    #         con_operate.append(v)
-
-    #     result_list = []
-    #     for i in range(len(con_operate)):
-    #         conu = con_operate[i]
-    #         col = col_operate[i]
-    #         if self.is_number(conu["value"]):
-    #             conu["value"] = int(conu["value"])
-    #         if conu["operation"] == '=':
-    #             result_list.append(util.get_equal_keys_list(self.data[col], conu["value"]))
-    #         elif conu["operation"] == '<':
-    #             result_list.append(util.get_less_keys_list(self.data[col], conu["value"]))
-    #         elif conu["operation"] == '>':
-    #             result_list.append(util.get_more_keys_list(self.data[col], conu["value"]))
-    #         elif conu["operation"] == '<=':
-    #             result_list.append(util.get_less_equal_keys_list(self.data[col], conu["value"]))
-    #         elif conu["operation"] == '>=':
-    #             result_list.append(util.get_more_equal_keys_list(self.data[col], conu["value"]))
-
-    #         return result_list
