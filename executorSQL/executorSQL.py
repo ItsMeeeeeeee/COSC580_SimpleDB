@@ -94,6 +94,8 @@ class SQLExecuter:
             return
         res, type = self.tables[action['table']].select(action)
         self.tables[action['table']].updateIndex()
+        # print(f"res {res}")
+        # print(f"type {type}")
         _print(res, type)
 
     def _select_join(self, action):
