@@ -91,6 +91,8 @@ def is_number(s):
 
 
 
+
+
 if __name__ == '__main__':
     d = SQLParser().parse("update dd set money = 1, age = 3 where id > 0 AND age > 24")
     print(f'tokens : {d}')
