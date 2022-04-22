@@ -23,24 +23,24 @@ class SQLExecuter:
         self.function = {
             'insert': self._insert,
             'create': self._create,
-            'search' : self._select,
-            'delete' : self._delete,
-            'create index' : self._createIndex,
-            'create db' : self._createDatabase,
-            'use' : self._useDatabase,
-            'exit' : self._exit,
-            'show' : self._show,
-            'drop' : self._drop,
+            'search': self._select,
+            'delete': self._delete,
+            'create index': self._createIndex,
+            'create db': self._createDatabase,
+            'use': self._useDatabase,
+            'exit': self._exit,
+            'show': self._show,
+            'drop': self._drop,
             'search join': self._select_join,
         }
 
         self._load()
+
     # TODO exit to exit
     def run(self):
         while True:
             statement = input("sdb> ")
             self.execute(statement)
-
 
     # execute the user entered statement
     def execute(self, statement):
@@ -53,11 +53,11 @@ class SQLExecuter:
         print(action)
         if self.currentDB == None:
             print("Did not Choose Database!")
-            return 
+            return
         self.tables[action['name']] = Table(action['name'], action['cols'])
         self._updateTable({
-            'database' : self.currentDB,
-            'name' : action['name']
+            'database': self.currentDB,
+            'name': action['name']
         })
 
     # create index on specific table
@@ -65,11 +65,11 @@ class SQLExecuter:
         print(action)
         if self.currentDB == None:
             print("Did not Choose Database!")
-            return 
+            return
         self.tables[action['table']].createIndex(action)
         self._updateTable({
-            'database' : self.currentDB,
-            'name' : action['table']
+            'database': self.currentDB,
+            'name': action['table']
         })
 
     # insert data into sepcific table
@@ -77,20 +77,20 @@ class SQLExecuter:
         print(action)
         if self.currentDB == None:
             print("Did not Choose Database!")
-            return 
+            return
         self.tables[action['table']].insert(action)
         self.tables[action['table']].updateIndex()
         self._updateTable({
-            'database' : self.currentDB,
-            'name' : action['table']
+            'database': self.currentDB,
+            'name': action['table']
         })
-    
+
     # get data from table
     def _select(self, action):
         print(action)
         if self.currentDB == None:
             print("Did not Choose Database!")
-            return 
+            return
         res, type = self.tables[action['table']].select(action)
         self.tables[action['table']].updateIndex()
         _print(res, type)
@@ -105,7 +105,7 @@ class SQLExecuter:
         :return: print result
         """
         print(f"Now using join SQL!", action)
-        if self.currentDB == None:
+        if self.currentDB is None:
             print("Did not Choose Database!")
             return
         # first we need to get first tables data
@@ -159,17 +159,17 @@ class SQLExecuter:
         #  'COL2': [7, 6, 4, 9, 11, 15, 18, 19, 19]}
         # {'COL1': ['Boolean'], 'COL2': ['int']}
         _print(result, types)
-    
+
     def _delete(self, action):
         print(action)
-        if self.currentDB == None:
+        if self.currentDB is None:
             print("Did not Choose Database!")
-            return 
+            return
         self.tables[action['table']].delete(action)
         self.tables[action['table']].updateIndex()
         self._updateTable({
-            'database' : self.currentDB,
-            'name' : action['table']
+            'database': self.currentDB,
+            'name': action['table']
         })
 
     def _createDatabase(self, action):
@@ -178,7 +178,7 @@ class SQLExecuter:
             self.database[action['name']] = {}
         else:
             print("Database %s Already Exists", action['name'])
-    
+
     def _useDatabase(self, action):
         print(action)
         if action['database'] in self.database.keys():
@@ -186,7 +186,7 @@ class SQLExecuter:
             self.tables = self.database[action['database']]
         else:
             print("No Database Named %s", action['database'])
-    
+
     def _show(self, action):
         print(action)
         if action['kind'] == 'databases':
@@ -195,7 +195,7 @@ class SQLExecuter:
         else:
             if self.currentDB == None:
                 print("Did not Choose Database!")
-                return 
+                return
             tables = list(self.tables.keys())
             print(tables)
 
@@ -211,22 +211,25 @@ class SQLExecuter:
         else:
             if self.currentDB == None:
                 print("Did not Choose Database!")
-                return 
+                return
             if action['name'] not in self.tables.keys():
                 print("No Table Named %s", action['name'])
             action['database'] = self.currentDB
             self._dropTable(action)
             del self.database[self.currentDB][action['name']]
             self.tables = self.database[self.currentDB]
+
     def _dropDB(self, action):
         print(action)
         folderpath = os.path.join("db", action['name'])
         shutil.rmtree(folderpath)
+
     def _dropTable(self, action):
         print(action)
         filepath = os.path.join("db", action['database'])
         filepath = os.path.join(filepath, action['name'])
         os.remove(filepath)
+
     def _updateTable(self, action):
         print(action)
         filepath = os.path.join("db", action['database'])
@@ -244,8 +247,8 @@ class SQLExecuter:
 
     def _load(self):
         db_path = "db"
-        for path, db_list, _ in os.walk(db_path):  
-            for db_name in db_list:  
+        for path, db_list, _ in os.walk(db_path):
+            for db_name in db_list:
                 self.database[db_name] = {}
                 for path, _, table_list in os.walk(os.path.join(path, db_name)):
                     for table_name in table_list:
@@ -255,6 +258,7 @@ class SQLExecuter:
 
     def _save(self, table):
         path = "db"
+
     def _save(self):
         path = "db"
         f = None

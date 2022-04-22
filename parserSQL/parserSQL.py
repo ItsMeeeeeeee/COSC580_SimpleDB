@@ -195,7 +195,7 @@ class SQLParser:
         if ret and len(ret[0]) == 6:
             ret_tmp = ret[0]
             # check if the given table name is a string without space, raise error if do contain space
-            if (len(ret_tmp[2].split(' ')) > 1):
+            if len(ret_tmp[2].split(' ')) > 1:
                 return None
             data = {
                 'type': 'insert',
@@ -223,7 +223,7 @@ class SQLParser:
         if ret and len(ret[0]) == 5:
             ret_tmp = ret[0]
             # check if the given table name is a string without space, raise error if do contain space
-            if (len(ret_tmp[2].split(' ')) > 1):
+            if len(ret_tmp[2].split(' ')) > 1:
                 return None
             values = ret_tmp[4].split(", ")
             data = {

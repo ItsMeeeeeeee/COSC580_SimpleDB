@@ -1,6 +1,7 @@
 from util import util
 from bplus_tree import BPlusTree
 
+
 class Table:
     # {
     # 'col1' : ['string', 'unique'],
@@ -19,11 +20,11 @@ class Table:
         self.btrees = {}
 
         self._condition_map = {
-            '=' : self._equal,
-            '>' : self._bigger,
-            '<' : self._smaller,
-            '>=' : self._biggerAndEqual,
-            '<=' : self._smallerAndEqual,
+            '=': self._equal,
+            '>': self._bigger,
+            '<': self._smaller,
+            '>=': self._biggerAndEqual,
+            '<=': self._smallerAndEqual,
         }
 
         # self defined index, used if no primary key given
@@ -48,20 +49,26 @@ class Table:
         except Exception:
             print('Error! Cannot Resolve Given Input')
             return
+
     def _format(self, col, value):
         if self.type[self.var.index(col)][0] == 'int':
             return int(value)
         elif self.type[self.var.index(col)][0] == 'float':
-            return  float(value)
+            return float(value)
         return value
+
     def _equal(self, cond, col):
         return util.get_equal_keys_list(self.data[col], self._format(col, cond["value"]))
+
     def _bigger(self, cond, col):
         return util.get_more_keys_list(self.data[col], self._format(col, cond["value"]))
+
     def _smaller(self, cond, col):
         return util.get_less_keys_list(self.data[col], self._format(col, cond["value"]))
+
     def _biggerAndEqual(self, cond, col):
         return util.get_more_equal_keys_list(self.data[col], self._format(col, cond["value"]))
+
     def _smallerAndEqual(self, cond, col):
         return util.get_less_equal_keys_list(self.data[col], self._format(col, cond["value"]))
         # return [index for index, v in enumerate(self.data[col]) if v <= float(cond["value"])]
@@ -71,7 +78,7 @@ class Table:
         if self.btrees == {}:
             return
         for name in self.btrees.keys():
-            self.btrees[name]['tree'] = BPlusTree() 
+            self.btrees[name]['tree'] = BPlusTree()
             for i in range(len(self.data[name])):
                 self.btrees[name]['tree'].insert(self.data[name][i], i)
 
@@ -96,7 +103,7 @@ class Table:
                 del self.data[col][index]
             if self.primary == 'index__':
                 del self.data[self.primary][index]
-    
+
     # a helper function used to help select function to get corresponding info
     def _select_data(self, index_select, fields):
         result = dict()
@@ -107,11 +114,11 @@ class Table:
                 result[field].append(self.data[field][index])
         return result
 
-########################################################################################################
+    ########################################################################################################
 
     # def delete(self, action):
     #     # get intersection
-        
+
     #     index_list_delete = self.condition_filter(action["conditions"])
     #     index_delete = index_list_delete[0]
     #     for i in range(1, len(index_list_delete)):
@@ -119,7 +126,7 @@ class Table:
     #     index_delete.sort(reverse=True)
     #     # delete data from table according to index in descending order
     #     self._delete_data(index_delete)
-    
+
     def delete(self, action):
         if action.get('conditions'):
             cols_select = []
@@ -139,12 +146,12 @@ class Table:
                 index_list_select.append(tmp)
         else:
             print("ERROR! Cannot Resolve Given Input!")
-            return 
+            return
 
-        # set a condition check for only one constraint
+            # set a condition check for only one constraint
         if len(index_list_select) == 1:
             print('Index: ', index_list_select[0])
-            result = self._delete_data(index_list_select[0])
+            self._delete_data(index_list_select[0])
         else:
             index_select = index_list_select[0]
             if action['condition_logic'] == 'AND':
@@ -159,13 +166,14 @@ class Table:
                 index_select.sort()
             print('Index: ', index_select)
             # delete data from table according to index in descending order
-            result = self._delete_data(index_select)
-            return result
-    ## Select By Conditions
+            self._delete_data(index_select)
+            return
+
+    # Select By Conditions
     def select(self, action):
         if action['fields'] == '*':
             fields = self.var
-        else:    
+        else:
             fields = action["fields"]
         if action.get('conditions'):
             cols_select = []
@@ -192,7 +200,7 @@ class Table:
             result = self._select_data(index_list_select[0], fields)
             type = {}
             for var in result.keys():
-                type[var] =(self.type[self.var.index(var)])
+                type[var] = (self.type[self.var.index(var)])
             return result, type
         else:
             index_select = index_list_select[0]
@@ -211,7 +219,7 @@ class Table:
             result = self._select_data(index_select, fields)
             type = {}
             for var in result.keys():
-                type[var] =(self.type[self.var.index(var)])
+                type[var] = (self.type[self.var.index(var)])
             return result, type
 
     def insert(self, action):
@@ -243,7 +251,6 @@ class Table:
             self.data[self.primary].append(self.index)
             self.index += 1
 
-
     # def update(self, action):
     #     """
 
@@ -256,8 +263,6 @@ class Table:
     #     if not self.checkColumn([*data]):
     #         return
 
-
-
     #     list_update = self.condition_filter(conditions)
 
     #     tmp = list_update[0]
@@ -266,12 +271,12 @@ class Table:
     #     for i in data.keys():
     #         for j in tmp:
     #             self.data[i][j] = data[i]
-    
+
     def update(self, action):
-        
+
         if not action.get('conditions'):
             print("ERROR! Cannot Resolve Given Input!")
-            return 
+            return
 
         cols_select = []
         conditions_select = []
@@ -290,7 +295,7 @@ class Table:
         tmp = index_list_select[0]
         for i in range(len(index_list_select)):
             tmp = [val for val in tmp if val in index_list_select[i]]
-        
+
         data = action['data']
         for i in data.keys():
             for j in tmp:
@@ -304,14 +309,12 @@ class Table:
             return
         # init the name and tree
         self.btrees[action['col']] = {
-            'name' : action['name'],
-            'tree' : BPlusTree()
+            'name': action['name'],
+            'tree': BPlusTree()
         }
         # insert index as value where value as key
         for i in range(len(self.data[action['col']])):
             self.btrees[action['col']]['tree'].insert(self.data[action['col']][i], i)
-
-
 
     def checkColumn(self, input_col):
         table_col = [*self.data]
@@ -364,7 +367,3 @@ class Table:
     #             result_list.append(util.get_more_equal_keys_list(self.data[col], conu["value"]))
 
     #         return result_list
-
-    ### TODO
-    def find_index_by_value_columns(self, ):
-        pass
