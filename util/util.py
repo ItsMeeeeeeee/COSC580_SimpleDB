@@ -53,8 +53,14 @@ def _print(res, type):
 
 
 def merge_dict(result, res1):
-    for k, v in res1.items():
-        if result.get(k, False):
-            continue
-        result[k] = v
+    # merge first table into empty dict
+    if result:
+        for k, v in res1.items():
+            # if result.get(k, False):
+            #     continue
+            result[k] = v
+    else:
+        pass
+    ## inner join use the shortest one
+
     return result
