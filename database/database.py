@@ -1,5 +1,6 @@
 from util import util
 from bplus_tree import BPlusTree
+import re
 
 
 class Table:
@@ -26,6 +27,7 @@ class Table:
             '>=': self._biggerAndEqual,
             '<=': self._smallerAndEqual,
         }
+
 
         # self defined index, used if no primary key given
         self.index = 0
@@ -107,6 +109,7 @@ class Table:
     # a helper function used to help select function to get corresponding info
     def _select_data(self, index_select, fields):
         result = dict()
+
         for index in index_select:
             for field in fields:
                 if not result.get(field, False):
@@ -114,7 +117,49 @@ class Table:
                 result[field].append(self.data[field][index])
         return result
 
+    def _select_data_2(self, index_select, fields, filter):
+        _select_filter_map = {
+            'avg': self._select_avg,
+            'count': self._select_count,
+            'max': self._select_max,
+            'min': self._select_min,
+        }
+        result = dict()
+        # check the filter of selected data
+        i = 0
+        for field in fields:
+            print(f"index_select {index_select}")
+            result[field] = _select_filter_map[filter[i]](field,index_select)
+            i += 1
+
+        return result
+
     ########################################################################################################
+
+    def _select_avg(self, field, index):
+        _sum = 0
+        for i in index:
+            _sum += self.data[field][0]
+
+        return [_sum/len(index)]
+
+    def _select_count(self, field, index):
+        return [len(index)]
+
+    def _select_max(self, field, index):
+        _max = self.data[field][index[0]]
+        for i in index:
+            if _max < self.data[field][i]:
+                _max = self.data[field][i]
+        return [_max]
+
+    def _select_min(self, field ,index):
+        _min = self.data[field][index[0]]
+        for i in index:
+            if _min > self.data[field][i]:
+                _min = self.data[field][i]
+
+        return [_min]
 
     # def delete(self, action):
     #     # get intersection
@@ -175,6 +220,8 @@ class Table:
             fields = self.var
         else:
             fields = action["fields"]
+            fields, filter = self.check_filter(fields)
+
         if action.get('conditions'):
             cols_select = []
             conditions_select = []
@@ -196,9 +243,14 @@ class Table:
 
         # set a condition check for only one constraint
         if len(index_list_select) == 1:
-            print('Index: ', index_list_select[0])
-            result = self._select_data(index_list_select[0], fields)
+            # print('Index: ', index_list_select[0])
+            if "" not in filter:
+                result = self._select_data_2(index_list_select[0], fields, filter)
+            else:
+                result = self._select_data(index_list_select[0], fields)
+
             type = {}
+            print(f"result {result}")
             for var in result.keys():
                 type[var] = (self.type[self.var.index(var)])
             return result, type
@@ -216,7 +268,11 @@ class Table:
                 index_select.sort()
             print('Index: ', index_select)
             # delete data from table according to index in descending order
-            result = self._select_data(index_select, fields)
+            if "" not in filter:
+                result = self._select_data_2(index_select, fields, filter)
+            else:
+                result = self._select_data(index_select, fields)
+
             type = {}
             for var in result.keys():
                 type[var] = (self.type[self.var.index(var)])
@@ -251,26 +307,26 @@ class Table:
             self.data[self.primary].append(self.index)
             self.index += 1
 
-    # def update(self, action):
-    #     """
+    def check_filter(self, fields):
+        filter = []
+        result = []
+        if "(" not in fields[0]:
+            return fields, ['']
 
-    #     :param actions:
-    #     :return:
-    #     """
-    #     data = action['data']
-    #     conditions = action['conditions']
+        for field in fields:
+            if "avg" in field.lower():
+                filter.append('avg')
+            elif "count" in field.lower():
+                filter.append('count')
+            elif "max" in field.lower():
+                filter.append('max')
+            elif "min" in field.lower():
+                filter.append('min')
+            else:
+                filter.append("")
+            result.append(re.findall(r"\((.*?)\)", field)[0])
 
-    #     if not self.checkColumn([*data]):
-    #         return
-
-    #     list_update = self.condition_filter(conditions)
-
-    #     tmp = list_update[0]
-    #     for i in range(len(list_update)):
-    #         tmp = [val for val in tmp if val in list_update[i]]
-    #     for i in data.keys():
-    #         for j in tmp:
-    #             self.data[i][j] = data[i]
+        return result, filter
 
     def update(self, action):
 
