@@ -173,7 +173,7 @@ class SQLParser:
                     value = value.replace('"', '').replace(",", '').strip()
                 else:
                     try:
-                        value = int(value.strip())
+                        value = value.strip()
                     except:
                         return None
                 data['data'][field] = value

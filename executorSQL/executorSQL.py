@@ -25,6 +25,7 @@ class SQLExecuter:
             'create': self._create,
             'search': self._select,
             'delete': self._delete,
+            'update': self._update,
             'create index': self._createIndex,
             'create db': self._createDatabase,
             'use': self._useDatabase,
@@ -172,6 +173,18 @@ class SQLExecuter:
             print("Did not Choose Database!")
             return
         self.tables[action['table']].delete(action)
+        self.tables[action['table']].updateIndex()
+        self._updateTable({
+            'database': self.currentDB,
+            'name': action['table']
+        })
+
+    def _update(self, action):
+        print(action)
+        if self.currentDB is None:
+            print("Did not Choose Database!")
+            return
+        self.tables[action['table']].update(action)
         self.tables[action['table']].updateIndex()
         self._updateTable({
             'database': self.currentDB,
