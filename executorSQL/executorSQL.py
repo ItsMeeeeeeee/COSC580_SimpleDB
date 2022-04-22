@@ -109,18 +109,28 @@ class SQLExecuter:
             print("Did not Choose Database!")
             return
         # first we need to get first tables data
-        first_table = action['conditions'][0]['field'].split(".")[0]
-        first_table_cond_field = action['conditions'][0]['field'].split(".")[1]
-        first_table_col = action['join fields'][first_table]
-        action_to_table1 = {
-            'type': 'search',
-            'table': first_table,
-            'fields': action['fields'],
-            'conditions': [{
-                'field': first_table_cond_field,
-                'cond': action['conditions'][0]['cond'],
-            }]
-        }
+        if action.get("conditions"):
+            first_table = action['conditions'][0]['field'].split(".")[0]
+            first_table_cond_field = action['conditions'][0]['field'].split(".")[1]
+            first_table_col = action['join fields'][first_table]
+            action_to_table1 = {
+                'type': 'search',
+                'table': first_table,
+                'fields': action['fields'],
+                'conditions': [{
+                    'field': first_table_cond_field,
+                    'cond': action['conditions'][0]['cond'],
+                }]
+            }
+        else:
+            first_table = list(action['join fields'].keys())[0]
+            first_table_col = action['join fields'][first_table]
+            action_to_table1 = {
+                'type': 'search',
+                'table': first_table,
+                'fields': action['fields'],
+            }
+
         res1, type1 = self.tables[first_table].select(action_to_table1)
         print(res1)
         # use join fields to search table2 based on the values we select in table1
@@ -153,11 +163,7 @@ class SQLExecuter:
         merge_dict(result, res2)
         types = merge_dict(types, type1)
         merge_dict(types, type2)
-        print(result)
-        print(types)
-        # {'COL1': ['YES', 'YES', 'YES', 'No', 'YES', 'YES', 'YES', 'No', 'YES'],
-        #  'COL2': [7, 6, 4, 9, 11, 15, 18, 19, 19]}
-        # {'COL1': ['Boolean'], 'COL2': ['int']}
+
         _print(result, types)
 
     def _delete(self, action):
