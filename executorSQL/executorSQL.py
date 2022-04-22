@@ -1,6 +1,6 @@
 from parserSQL.parserSQL import SQLParser
 from database.database import Table
-from util.util import _print, merge_dict
+from util.util import _print, merge_dict, merge_result_inner
 
 import shutil
 import pickle
@@ -94,6 +94,8 @@ class SQLExecuter:
             return
         res, type = self.tables[action['table']].select(action)
         self.tables[action['table']].updateIndex()
+        # print(f"res {res}")
+        # print(f"type {type}")
         _print(res, type)
 
     def _select_join(self, action):
@@ -131,7 +133,7 @@ class SQLExecuter:
                 'table': first_table,
                 'fields': action['fields'],
             }
-
+        print('read table1')
         res1, type1 = self.tables[first_table].select(action_to_table1)
         print(res1)
         # use join fields to search table2 based on the values we select in table1
@@ -157,11 +159,12 @@ class SQLExecuter:
             'fields': action['fields'],
             'conditions': conditions
         }
+        print("read table 2")
         res2, type2 = self.tables[second_table].select(action_to_table2)
+        print(res2)
         result = {}
         types = {}
-        result = merge_dict(result, res1)
-        merge_dict(result, res2)
+        result = merge_result_inner(result, res1, res2, first_table_col, second_table_field)
         types = merge_dict(types, type1)
         merge_dict(types, type2)
 

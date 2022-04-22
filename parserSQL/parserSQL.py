@@ -137,7 +137,6 @@ class SQLParser:
             }
 
     def __select(self, statement):
-        # print('statement:', statement)
         comp = self.__get_comp('SELECT')
         ret = comp.findall(' '.join(statement))
         # print(ret, ' '.join(statement))
