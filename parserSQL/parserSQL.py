@@ -88,16 +88,23 @@ class SQLParser:
             if len(conditions) < 3:
                 print('Cannot Resolve Given Input!!!')
                 return
-            action['conditions'] = {}  # conditions 条件
+            action['conditions'] = []  # conditions 条件
             for index in range(0, len(conditions), 3):
                 field = conditions[index]
                 symbol = conditions[index + 1].upper()
                 condition = conditions[index + 2]
 
-                action['conditions'][field] = {
-                    'operation': symbol,
-                    'value': condition
-                }
+                # action['conditions'][field] = {
+                #     'operation': symbol,
+                #     'value': condition
+                # }
+                action['conditions'].append({
+                    'field': field,
+                    "cond": {
+                        'operation': symbol,
+                        'value': condition
+                    }
+                })
         return action
 
     def __get_comp(self, action):
@@ -111,12 +118,15 @@ class SQLParser:
         if ret and len(ret) == 4:
             fields = ret[1]
             tables = []
-            join_fields = []
+            join_fields = {}
             left = ret[3].split(" ")
             tables.append(left[0])
             tables.append(left[2])
-            join_fields.append(left[-1])
-            join_fields.append(left[-3])
+            join_field = [left[-1], left[-3]]
+            for str in join_field:
+                table = str.split(".")[0]
+                col = str.split(".")[1]
+                join_fields[table] = col
             if fields != '*':
                 fields = [field.strip() for field in fields.split(',')]
             return {

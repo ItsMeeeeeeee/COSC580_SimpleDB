@@ -1,6 +1,6 @@
 from parserSQL.parserSQL import SQLParser
 from database.database import Table
-from util.util import _print
+from util.util import _print, merge_dict
 
 import shutil
 import pickle
@@ -96,48 +96,69 @@ class SQLExecuter:
         _print(res, type)
 
     def _select_join(self, action):
+        """
+        :param action: {'type': 'search join',
+                        'tables': ['TABLE1', 'TABLE2'],
+                        'fields': '*',
+                        'join fields': {'TABLE2':'COL2', 'TABLE1':'COL2'},
+                        'conditions': [{'field': 'TABLE1.COL1', 'cond': {'operation': '=', 'value': 'YES'}}]}
+        :return: print result
+        """
         print(f"Now using join SQL!", action)
         if self.currentDB == None:
             print("Did not Choose Database!")
             return
         # first we need to get first tables data
+        first_table = action['conditions'][0]['field'].split(".")[0]
+        first_table_cond_field = action['conditions'][0]['field'].split(".")[1]
+        first_table_col = action['join fields'][first_table]
         action_to_table1 = {
             'type': 'search',
-            'table': [action['tables'][0]],
+            'table': first_table,
             'fields': action['fields'],
-            'conditions': action['conditions']
+            'conditions': [{
+                'field': first_table_cond_field,
+                'cond': action['conditions'][0]['cond'],
+            }]
         }
-        res1, type1 = self.tables[action['tables'][0]].select(action_to_table1)
+        res1, type1 = self.tables[first_table].select(action_to_table1)
+        print(res1)
         # use join fields to search table2 based on the values we select in table1
+        for k, v in action['join fields'].items():
+            if k != first_table:
+                second_table_field = v
+                second_table = k
+        conditions = []
+        for index in res1[first_table_col]:
+            condition = {
+                'field': second_table_field,
+                "cond": {
+                    'operation': '=',
+                    'value': f'{index}',
+                }
+            }
+            conditions.append(condition)
+
         action_to_table2 = {
             'type': 'search',
             'table': [action['tables'][1]],
-            'condition_logic': 'AND',
+            'condition_logic': 'OR',
             'fields': action['fields'],
-            'conditions': action['conditions']
+            'conditions': conditions
         }
-        actions = {
-            'type': 'search',
-            'table': 'TABLE1',
-            'fields': '*',
-            'condition_logic': 'AND',
-            'conditions': {
-                'COL2': {
-                    'operation': '=',
-                    'value': '1'
-                },
-            'COL1': {
-                'operation': '=',
-                'value': 'YES'}
-            }
-        }
-        # self.tables[action['tables'][1]].
-        print(res1)
-        print(type1)
+        res2, type2 = self.tables[second_table].select(action_to_table2)
+        result = {}
+        types = {}
+        result = merge_dict(result, res1)
+        merge_dict(result, res2)
+        types = merge_dict(types, type1)
+        merge_dict(types, type2)
+        print(result)
+        print(types)
         # {'COL1': ['YES', 'YES', 'YES', 'No', 'YES', 'YES', 'YES', 'No', 'YES'],
         #  'COL2': [7, 6, 4, 9, 11, 15, 18, 19, 19]}
         # {'COL1': ['Boolean'], 'COL2': ['int']}
-        _print(res1, type1)
+        _print(result, types)
     
     def _delete(self, action):
         print(action)
