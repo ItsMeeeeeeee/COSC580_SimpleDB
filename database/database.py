@@ -1,3 +1,4 @@
+from operator import index
 from util import util
 from bplus_tree import BPlusTree
 import re
@@ -27,7 +28,13 @@ class Table:
             '>=': self._biggerAndEqual,
             '<=': self._smallerAndEqual,
         }
-
+        
+        self._select_filter_map = {
+            'avg': self._select_avg,
+            'count': self._select_count,
+            'max': self._select_max,
+            'min': self._select_min,
+        }
 
         # self defined index, used if no primary key given
         self.index = 0
@@ -109,36 +116,10 @@ class Table:
                 del self.data[col][index]
             if self.primary == 'index__':
                 del self.data[self.primary][index]
-
-    # a helper function used to help select function to get corresponding info
-    def _select_data(self, index_select, fields):
-        result = dict()
-
-        for index in index_select:
-            for field in fields:
-                if not result.get(field, False):
-                    result[field] = []
-                result[field].append(self.data[field][index])
-        return result
-
-    def _select_data_2(self, index_select, fields, filter):
-        _select_filter_map = {
-            'avg': self._select_avg,
-            'count': self._select_count,
-            'max': self._select_max,
-            'min': self._select_min,
-        }
-        result = dict()
-        # check the filter of selected data
-        i = 0
-        for field in fields:
-            print(f"index_select {index_select}")
-            result[field] = _select_filter_map[filter[i]](field,index_select)
-            i += 1
-
-        return result
-
     ########################################################################################################
+
+    def _groupBy(self, action):
+        print(action)
 
     def _select_avg(self, field, index):
         _sum = 0
@@ -164,6 +145,56 @@ class Table:
                 _min = self.data[field][i]
 
         return [_min]
+
+
+
+    # a helper function used to help select function to get corresponding info
+    def _select_data(self, index_select, fields):
+        result = dict()
+
+        for index in index_select:
+            for field in fields:
+                if not result.get(field, False):
+                    result[field] = []
+                result[field].append(self.data[field][index])
+        return result
+
+    def _select_data_2(self, index_select, fields, filter):
+        result = dict()
+        # check the filter of selected data
+        for i in range(len(fields)):
+            # print(f"index_select {index_select}")
+            result[fields[i]] = self._select_filter_map[filter[i]](fields[i],index_select)
+
+        return result
+    def _select_data_2(self, index_select, fields, filter, groupby):
+        col_set = list(set(self.data[groupby]))
+        col_select = {}
+        for v in col_set:
+            col_select[v] = []
+        for i in index_select:
+            for v in col_set:
+                if self.data[groupby][i] == v:
+                    col_select[v].append(i)
+        result = {
+            groupby : col_set
+        }
+        for col in col_set:
+            for i in range(len(fields)):
+                if result.get(filter[i] + '_' + fields[i]) == None:
+                    result[filter[i] + '_' + fields[i]] = []
+                if col_select[col] == []:
+                    result[filter[i] + '_' + fields[i]].append(0)
+                else:
+                    result[filter[i] + '_' + fields[i]].append(self._select_filter_map[filter[i]](fields[i], col_select[col])[0])
+
+        # # check the filter of selected data
+        # for i in range(len(fields)):
+        #     # print(f"index_select {index_select}")
+        #     result[fields[i]] = self._select_filter_map[filter[i]](fields[i], index_select)
+        #     i += 1
+
+        return result
 
     # def delete(self, action):
     #     # get intersection
@@ -222,66 +253,59 @@ class Table:
     def select(self, action):
         if action['fields'] == '*':
             fields = self.var
-            filter=['']
+            filter = None
         else:
-            fields = action["fields"]
-            fields, filter = self.check_filter(fields)
+            fields, filter = self.check_filter(action["fields"])
 
+        # get the corresponding index
         if action.get('conditions'):
-            cols_select = []
-            conditions_select = []
-            for condition in action["conditions"]:
-                cols_select.append(condition['field'])
-                conditions_select.append(condition['cond'])
-
             index_list_select = []
-            for i in range(len(conditions_select)):
-                cond = conditions_select[i]
-                col = cols_select[i]
-                if cond["operation"] not in self._condition_map:
+            for condition in action["conditions"]:
+                if condition['cond']["operation"] not in self._condition_map:
                     print('Error! Cannot Resolve Given Input')
                     return
-                tmp = self._filter(cond, col)
-                index_list_select.append(tmp)
+                index_list_select.append(self._filter(condition['cond'], condition['field']))
         else:
             index_list_select = [[i for i in range(len(self.data[self.var[0]]))]]
 
         # set a condition check for only one constraint
-        if len(index_list_select) == 1:
-            # print('Index: ', index_list_select[0])
-            if "" not in filter:
-                result = self._select_data_2(index_list_select[0], fields, filter)
-            else:
-                result = self._select_data(index_list_select[0], fields)
-
-            type = {}
-            print(f"result {result}")
-            for var in result.keys():
-                type[var] = (self.type[self.var.index(var)])
-            return result, type
-        else:
-            index_select = index_list_select[0]
+        index_select = index_list_select[0]
+        if len(index_list_select) > 1:
             if action['condition_logic'] == 'AND':
                 # get intersection
                 for i in range(1, len(index_list_select)):
                     index_select = list(set(index_select).intersection(index_list_select[i]))
-                index_select.sort()
             elif action['condition_logic'] == 'OR':
                 # get intersection
                 for i in range(1, len(index_list_select)):
                     index_select = list(set(index_select).union(index_list_select[i]))
-                index_select.sort()
-            print('Index: ', index_select)
-            # delete data from table according to index in descending order
-            if "" not in filter:
-                result = self._select_data_2(index_select, fields, filter)
+            index_select.sort()
+        
+        print('Index: ', index_select)
+        if filter:
+            if action.get('groupby'):
+                result = self._select_data_2(index_select, fields, filter, action['groupby'])
+                return result, None
             else:
-                result = self._select_data(index_select, fields)
+                result = self._select_data_2(index_select, fields, filter)
+        else:
+            if action.get('groupby'):
+                raise Exception("ERROR!!! Cannot Run 'GROUP BY' Without Constraint!")
+            result = self._select_data(index_select, fields)
 
-            type = {}
-            for var in result.keys():
-                type[var] = (self.type[self.var.index(var)])
-            return result, type
+        type = {}
+        for var in result.keys():
+            type[var] = (self.type[self.var.index(var)])
+        return result, type
+
+    def _insert(self, type, col, value):
+        if type == 'int':
+            value = int(value)
+        elif type == 'float':
+            value = float(value)
+        if self.primary == col and value in self.data[self.primary]:
+            raise Exception("ERROR!!! Duplicate Primary Key Value Exists!")
+        self.data[col].append(value)
 
     def insert(self, action):
         # check the type of input, one is specify the columns they want to insert, other one does not
@@ -289,6 +313,8 @@ class Table:
         # {'type': 'insert', 'table': 'table1', 'values': ['1', ' 2', ' 3', ' 4']}
         # inlcude data means this statement specified the columns
         if not action.get('data') == None:
+            if action.get(self.primary) == None:
+                raise Exception("ERROR!!! No Primary Value Provided!")
             for col in self.var:
                 self.data[col].append(action.get(col))
         # otherwise, not
@@ -296,16 +322,9 @@ class Table:
             # check if the provided columns matches
             if len(action['values']) != len(self.var):
                 print('Can not resolve input')
-            else:
+            else:  
                 for i in range(len(action['values'])):
-                    if self.type[i][0].lower() == 'int':
-                        self.data[self.var[i]].append(int(action['values'][i]))
-                    elif self.type[i][0].lower() == 'float':
-                        self.data[self.var[i]].append(float(action['values'][i]))
-                    # elif self.type[i][0].lower() == 'boolean':
-                    #     self.data[self.var[i]].append(bool(action['values'][i]))
-                    else:
-                        self.data[self.var[i]].append(action['values'][i])
+                    self._insert(self.type[i][0].lower(), self.var[i], action['values'][i])
 
         # check if the table got user defiend primary key, and append it
         if self.primary == 'index__':

@@ -1,6 +1,8 @@
 #  coding = utf-8
 
+from ast import Sub
 import re
+from tokenize import group
 
 
 class SQLParser:
@@ -24,7 +26,8 @@ class SQLParser:
             'SELECT': r'(SELECT|select) (.*) (FROM|from) (.*)',
             'UPDATE': r'(UPDATE|update) (.*) (SET|set) (.*)',
             'INSERT': r'(INSERT|insert) (INTO|into) (.*) \((.*)\) (VALUES|values) \((.*)\)',
-            'INSERT_2': r'(INSERT|insert) (INTO|into) (.*) (VALUES|values) \((.*)\)'
+            'INSERT_2': r'(INSERT|insert) (INTO|into) (.*) (VALUES|values) \((.*)\)',
+            'GROUPBY' : r'(.*) (GROUP|group) (BY|by) (.*)'
         }
 
     def __filter_space(self, obj):
@@ -70,18 +73,24 @@ class SQLParser:
 
         conditions = []
         if len(statement) == 2:
-            if 'and' in statement[1].lower():
-                conditions_list = self.__filter_space(statement[1].split("AND"))
+            if 'GROUP BY' in statement[1]:
+                sub_statement = statement[1].split('GROUP BY')
+            else:
+                sub_statement = statement[1].split('group by')
+            if len(sub_statement) > 1:
+                action['groupby'] = sub_statement[1].strip()
+            if 'and' in sub_statement[0].lower():
+                conditions_list = self.__filter_space(sub_statement[0].split("AND"))
                 action['condition_logic'] = 'AND'
                 for cond in conditions_list:
                     conditions.extend(self.__filter_space(cond.split(" ")))
-            elif 'or' in statement[1].lower():
-                conditions_list = self.__filter_space(statement[1].split("OR"))
+            elif 'or' in sub_statement[0].lower():
+                conditions_list = self.__filter_space(sub_statement[0].split("OR"))
                 action['condition_logic'] = 'OR'
                 for cond in conditions_list:
                     conditions.extend(self.__filter_space(cond.split(" ")))
             else:
-                conditions.extend(self.__filter_space(statement[1].split(" ")))
+                conditions.extend(self.__filter_space(sub_statement[0].split(" ")))
 
         if conditions:
             if len(conditions) < 3:
@@ -140,16 +149,26 @@ class SQLParser:
         ret = comp.findall(' '.join(statement))
         # print(ret, ' '.join(statement))
         if ret and len(ret[0]) == 4:
-            fields = ret[0][1]
-            table = ret[0][3]
+            comp = self.__get_comp('GROUPBY')
+            groupby = comp.findall(ret[0][3])
 
+            fields = ret[0][1]
             if fields != '*':
                 fields = [field.strip() for field in fields.split(',')]
-            return {
-                'type': 'search',
-                'table': table,
-                'fields': fields
-            }
+                
+            if groupby:
+                return {
+                    'type': 'search',
+                    'table': groupby[0][0],
+                    'fields': fields,
+                    'groupby' : groupby[0][3]
+                }
+            else:
+                return {
+                    'type': 'search',
+                    'table': ret[0][3],
+                    'fields': fields
+                }
         return None
 
     def __update(self, statement):

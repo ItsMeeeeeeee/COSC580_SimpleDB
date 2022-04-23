@@ -105,8 +105,9 @@ class SQLExecuter:
             return
         try:
             res, type = self.tables[action['table']].select(action)
-            self.tables[action['table']].updateIndex()
+            # self.tables[action['table']].updateIndex()
             _print(res, type)
+                
         except Exception as e:
             print("ERROR!!! Cannot Resolve The Given Input!")
         # print(f"res {res}")
