@@ -36,14 +36,15 @@ def _print(res, type):
        }
     :return:
     """
-    for col, value in res.items():
-        if type[col][0] == 'int':
-            for i in range(len(value)):
-                value[i] = int(value[i])
-        elif type[col][0] == 'float':
-            for i in range(len(value)):
-                value[i] = float(value[i])
-        res[col] = value
+    if type:
+        for col, value in res.items():
+            if type[col][0] == 'int':
+                for i in range(len(value)):
+                    value[i] = int(value[i])
+            elif type[col][0] == 'float':
+                for i in range(len(value)):
+                    value[i] = float(value[i])
+            res[col] = value
 
     tb = pt.PrettyTable()
     cols = list(res.keys())
