@@ -45,9 +45,13 @@ class SQLExecuter:
 
     # execute the user entered statement
     def execute(self, statement):
-        action = self.parser.parse(statement)
-        if action:
-            self.function[action['type']](action)
+        try:
+            action = self.parser.parse(statement)
+            if action:
+                self.function[action['type']](action)
+        except Exception:
+            print("ERROR!!! Cannot Resolve The Given Input!")
+
 
     # create table
     def _create(self, action):
@@ -84,7 +88,7 @@ class SQLExecuter:
             print("Did not Choose Database!")
             return
         if self.tables.get(action['table']) == None:
-            print("ERROE！！！ No Table Named %s" % (action['table']))
+            print("ERROR！！！ No Table Named %s" % (action['table']))
         else:
             self.tables[action['table']].insert(action)
             self.tables[action['table']].updateIndex()
@@ -99,11 +103,14 @@ class SQLExecuter:
         if self.currentDB == None:
             print("Did not Choose Database!")
             return
-        res, type = self.tables[action['table']].select(action)
-        self.tables[action['table']].updateIndex()
+        try:
+            res, type = self.tables[action['table']].select(action)
+            self.tables[action['table']].updateIndex()
+            _print(res, type)
+        except Exception as e:
+            print("ERROR!!! Cannot Resolve The Given Input!")
         # print(f"res {res}")
         # print(f"type {type}")
-        _print(res, type)
 
     def _select_join(self, action):
         """

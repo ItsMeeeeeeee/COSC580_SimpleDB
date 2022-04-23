@@ -143,7 +143,7 @@ class Table:
     def _select_avg(self, field, index):
         _sum = 0
         for i in index:
-            _sum += self.data[field][0]
+            _sum += self.data[field][i]
 
         return [_sum/len(index)]
 
