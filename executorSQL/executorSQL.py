@@ -60,6 +60,9 @@ class SQLExecuter:
             print("Did not Choose Database!")
             return
         try:
+            if action['name'] in self.tables.keys():
+                print("Table %s Already Exists!" % (action['name']))
+                return
             self.tables[action['name']] = Table(action['name'], action['cols'])
             self._updateTable({
                 'database': self.currentDB,
@@ -90,12 +93,15 @@ class SQLExecuter:
         if self.tables.get(action['table']) == None:
             print("ERROR！！！ No Table Named %s" % (action['table']))
         else:
-            self.tables[action['table']].insert(action)
-            self.tables[action['table']].updateIndex()
-            self._updateTable({
-                'database': self.currentDB,
-                'name': action['table']
-            })
+            try:
+                self.tables[action['table']].insert(action)
+                self.tables[action['table']].updateIndex()
+                self._updateTable({
+                    'database': self.currentDB,
+                    'name': action['table']
+                })
+            except Exception as e:
+                print(e.args[0])
 
     # get data from table
     def _select(self, action):
@@ -109,7 +115,7 @@ class SQLExecuter:
             _print(res, type)
                 
         except Exception as e:
-            print("ERROR!!! Cannot Resolve The Given Input!")
+            print(e.args[0])
         # print(f"res {res}")
         # print(f"type {type}")
 
