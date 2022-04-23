@@ -92,10 +92,14 @@ class Table:
 
     # check if primary key is provided
     def _checkPrimary(self):
+        primary = 'index__'
         for key, type in zip(self.var, self.type):
             if 'primary' in type:
-                return key
-        return 'index__'
+                if primary == 'index__':
+                    primary = key
+                else:
+                    raise Exception("ERROR! Duplicate Primary Key Set!!!")
+        return primary
 
     def _delete_data(self, index_delete):
         # sort the index list in decending order so we can remove all in once without error

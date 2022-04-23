@@ -55,11 +55,15 @@ class SQLExecuter:
         if self.currentDB == None:
             print("Did not Choose Database!")
             return
-        self.tables[action['name']] = Table(action['name'], action['cols'])
-        self._updateTable({
-            'database': self.currentDB,
-            'name': action['name']
-        })
+        try:
+            self.tables[action['name']] = Table(action['name'], action['cols'])
+            self._updateTable({
+                'database': self.currentDB,
+                'name': action['name']
+            })
+        except Exception as e:
+            print(e.args[0])
+        
 
     # create index on specific table
     def _createIndex(self, action):
@@ -79,12 +83,15 @@ class SQLExecuter:
         if self.currentDB == None:
             print("Did not Choose Database!")
             return
-        self.tables[action['table']].insert(action)
-        self.tables[action['table']].updateIndex()
-        self._updateTable({
-            'database': self.currentDB,
-            'name': action['table']
-        })
+        if self.tables.get(action['table']) == None:
+            print("ERROE！！！ No Table Named %s" % (action['table']))
+        else:
+            self.tables[action['table']].insert(action)
+            self.tables[action['table']].updateIndex()
+            self._updateTable({
+                'database': self.currentDB,
+                'name': action['table']
+            })
 
     # get data from table
     def _select(self, action):
@@ -198,8 +205,11 @@ class SQLExecuter:
         print(action)
         if action['name'] not in self.database.keys():
             self.database[action['name']] = {}
+            db_path = os.path.join('db', action['name'])
+            if not os.path.exists(db_path):
+                os.makedirs()
         else:
-            print("Database %s Already Exists", action['name'])
+            print("Database '%s' Already Exists"%(action['name']))
 
     def _useDatabase(self, action):
         print(action)
@@ -272,9 +282,9 @@ class SQLExecuter:
         for path, db_list, _ in os.walk(db_path):
             for db_name in db_list:
                 self.database[db_name] = {}
-                for path, _, table_list in os.walk(os.path.join(path, db_name)):
+                for filepath, _, table_list in os.walk(os.path.join(path, db_name)):
                     for table_name in table_list:
-                        f = open(os.path.join(path, table_name), 'rb')
+                        f = open(os.path.join(filepath, table_name), 'rb')
                         self.database[db_name][table_name] = pickle.load(f)
                         f.close()
 

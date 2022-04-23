@@ -13,7 +13,6 @@ class SQLParser:
             'USE': self.__use,
             'CREATE': self.__create,
             'EXIT': self.__exit,
-            'QUIT': self.__quit,
             'SHOW': self.__show,
             'DROP': self.__drop,
             'JOIN': self.__join,
