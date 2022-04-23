@@ -16,7 +16,11 @@ p.execute("INSERT INTO TABLE2 VALUES (7, YES, 15)")
 p.execute("INSERT INTO TABLE2 VALUES (8, YES, 18)")
 p.execute("INSERT INTO TABLE2 VALUES (9, No, 22)")
 # p.execute("CREATE INDEX index1 ON TABLE1 (COL2) ")
+<<<<<<< HEAD
 p.execute("SELECT COL1, COL2 FROM TABLE2")
+=======
+p.execute("SELECT COUNT(COL1), AVG(COL2) FROM TABLE1")
+>>>>>>> a522a7b305ed14bf9b37039e1d1d0ced799a9f57
 # p.execute("SELECT * FROM TABLE2")
 # todo TABLE.COL --> CONDITION
 # p.execute("UPDATE TABLE1 set COL1 = YES, COL2 = 6 WHERE COL2 = 4 OR COL2 = 10 ")
