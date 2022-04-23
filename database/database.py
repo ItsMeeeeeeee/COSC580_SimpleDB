@@ -92,10 +92,14 @@ class Table:
 
     # check if primary key is provided
     def _checkPrimary(self):
+        primary = 'index__'
         for key, type in zip(self.var, self.type):
             if 'primary' in type:
-                return key
-        return 'index__'
+                if primary == 'index__':
+                    primary = key
+                else:
+                    raise Exception("ERROR! Duplicate Primary Key Set!!!")
+        return primary
 
     def _delete_data(self, index_delete):
         # sort the index list in decending order so we can remove all in once without error
@@ -139,7 +143,7 @@ class Table:
     def _select_avg(self, field, index):
         _sum = 0
         for i in index:
-            _sum += self.data[field][0]
+            _sum += self.data[field][i]
 
         return [_sum/len(index)]
 
@@ -414,29 +418,3 @@ class Table:
             pass
 
         return False
-
-    # def condition_filter(self, conditions):
-    #     col_operate = []
-    #     con_operate = []
-    #     for k, v in conditions.items():
-    #         col_operate.append(k)
-    #         con_operate.append(v)
-
-    #     result_list = []
-    #     for i in range(len(con_operate)):
-    #         conu = con_operate[i]
-    #         col = col_operate[i]
-    #         if self.is_number(conu["value"]):
-    #             conu["value"] = int(conu["value"])
-    #         if conu["operation"] == '=':
-    #             result_list.append(util.get_equal_keys_list(self.data[col], conu["value"]))
-    #         elif conu["operation"] == '<':
-    #             result_list.append(util.get_less_keys_list(self.data[col], conu["value"]))
-    #         elif conu["operation"] == '>':
-    #             result_list.append(util.get_more_keys_list(self.data[col], conu["value"]))
-    #         elif conu["operation"] == '<=':
-    #             result_list.append(util.get_less_equal_keys_list(self.data[col], conu["value"]))
-    #         elif conu["operation"] == '>=':
-    #             result_list.append(util.get_more_equal_keys_list(self.data[col], conu["value"]))
-
-    #         return result_list
