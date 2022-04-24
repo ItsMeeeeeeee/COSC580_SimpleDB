@@ -394,7 +394,7 @@ class Table:
         data = action['data']
         for i in data.keys():
             for j in tmp:
-                # print(f"i is {i}, data is {type(data[i])}")
+                print(f"i is {i}, data is {type(data[i])}")
                 if self.is_number(data[i]):
                     if self.primary == col and int(data[i]) in self.data[self.primary]:
                         raise Exception("ERROR!!! Duplicate Primary Key Value Exists!")
