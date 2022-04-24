@@ -55,7 +55,7 @@ class SQLExecuter:
 
     # create table
     def _create(self, action):
-        print(action)
+        # print(action)
         if self.currentDB == None:
             print("Did not Choose Database!")
             return
@@ -74,7 +74,7 @@ class SQLExecuter:
 
     # create index on specific table
     def _createIndex(self, action):
-        print(action)
+        # print(action)
         if self.currentDB == None:
             print("Did not Choose Database!")
             return
@@ -86,7 +86,7 @@ class SQLExecuter:
 
     # insert data into sepcific table
     def _insert(self, action):
-        print(action)
+        # print(action)
         if self.currentDB == None:
             print("Did not Choose Database!")
             return
@@ -105,7 +105,7 @@ class SQLExecuter:
 
     # get data from table
     def _select(self, action):
-        print(action)
+        # print(action)
         if self.currentDB == None:
             print("Did not Choose Database!")
             return
@@ -131,7 +131,7 @@ class SQLExecuter:
                         'conditions': [{'field': 'TABLE1.COL1', 'cond': {'operation': '=', 'value': 'YES'}}]}
         :return: print result
         """
-        print(f"Now using join SQL!", action)
+        # print(f"Now using join SQL!", action)
         if self.currentDB is None:
             print("Did not Choose Database!")
             return
@@ -195,7 +195,7 @@ class SQLExecuter:
         _print(result, types)
 
     def _delete(self, action):
-        print(action)
+        # print(action)
         if self.currentDB is None:
             print("Did not Choose Database!")
             return
@@ -207,7 +207,7 @@ class SQLExecuter:
         })
 
     def _update(self, action):
-        print(action)
+        # print(action)
         if self.currentDB is None:
             print("Did not Choose Database!")
             return
@@ -219,34 +219,40 @@ class SQLExecuter:
         })
 
     def _createDatabase(self, action):
-        print(action)
+        # print(action)
         if action['name'] not in self.database.keys():
             self.database[action['name']] = {}
             db_path = os.path.join('db', action['name'])
             if not os.path.exists(db_path):
                 os.makedirs()
         else:
-            print("Database '%s' Already Exists"%(action['name']))
+            print("Database '%s' Already Exists" % (action['name']))
 
     def _useDatabase(self, action):
-        print(action)
+        # print(action)
         if action['database'] in self.database.keys():
             self.currentDB = action['database']
             self.tables = self.database[action['database']]
         else:
-            print("No Database Named %s", action['database'])
+            print("No Database Named %s" % (action['database']))
 
     def _show(self, action):
-        print(action)
+        # print(action)
         if action['kind'] == 'databases':
             databases = list(self.database.keys())
-            print(databases)
+            # print(databases)
+            _print({
+                'databases' : databases
+            })
         else:
             if self.currentDB == None:
                 print("Did not Choose Database!")
                 return
             tables = list(self.tables.keys())
-            print(tables)
+            _print({
+                'tables' : tables
+            })
+            # print(tables)
 
     def _drop(self, action):
         # print(action)
@@ -269,18 +275,18 @@ class SQLExecuter:
             self.tables = self.database[self.currentDB]
 
     def _dropDB(self, action):
-        print(action)
+        # print(action)
         folderpath = os.path.join("db", action['name'])
         shutil.rmtree(folderpath)
 
     def _dropTable(self, action):
-        print(action)
+        # print(action)
         filepath = os.path.join("db", action['database'])
         filepath = os.path.join(filepath, action['name'])
         os.remove(filepath)
 
     def _updateTable(self, action):
-        print(action)
+        # print(action)
         filepath = os.path.join("db", action['database'])
         filepath = os.path.join(filepath, action['name'])
         if os.path.exists(filepath):
@@ -290,7 +296,7 @@ class SQLExecuter:
         f.close()
 
     def _exit(self, action):
-        print(action)
+        # print(action)
         self._save()
         os._exit(0)
 
