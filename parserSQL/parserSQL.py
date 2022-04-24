@@ -1,7 +1,7 @@
 #  coding = utf-8
 
 from ast import Sub
-import re
+from re import compile
 from tokenize import group
 
 
@@ -116,7 +116,7 @@ class SQLParser:
         return action
 
     def __get_comp(self, action):
-        return re.compile(self.__pattern_map[action])
+        return compile(self.__pattern_map[action])
 
 
     def __join(self, statement):
