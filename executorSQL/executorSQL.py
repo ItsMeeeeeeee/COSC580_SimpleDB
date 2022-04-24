@@ -110,6 +110,9 @@ class SQLExecuter:
             print("Did not Choose Database!")
             return
         try:
+            if action['table'] not in self.tables.keys():
+                print('Error!!! No Table Named %s' % (action['table']))
+                return
             res, type = self.tables[action['table']].select(action)
             # self.tables[action['table']].updateIndex()
             _print(res, type)
