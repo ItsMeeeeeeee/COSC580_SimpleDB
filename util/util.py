@@ -27,7 +27,7 @@ def get_more_equal_keys_list(list, value):
 
 
 # format print
-def _print(res, type):
+def _print(res, type=None):
     """
     Print the select relations
     :param res: THis is result json like
