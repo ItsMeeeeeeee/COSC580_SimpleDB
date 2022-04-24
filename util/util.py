@@ -1,4 +1,4 @@
-import prettytable as pt
+from prettytable import PrettyTable
 
 
 # get key by value
@@ -46,7 +46,7 @@ def _print(res, type=None):
                     value[i] = float(value[i])
             res[col] = value
 
-    tb = pt.PrettyTable()
+    tb = PrettyTable()
     cols = list(res.keys())
     for col in cols:
         tb.add_column(col, res[col])
