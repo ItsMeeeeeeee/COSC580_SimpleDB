@@ -262,7 +262,7 @@ class SQLParser:
         ret = comp.findall(' '.join(statement))
         if ret:
             info = {
-                'type': 'create db',
+                'type': 'create_db',
                 'name': ret[0][2]
             }
             return info
@@ -289,7 +289,7 @@ class SQLParser:
         ret = comp.findall(' '.join(statement))
         if ret:
             info = {
-                'type': 'create index',
+                'type': 'create_index',
                 'table': ret[0][4],
                 'name': ret[0][2],
                 'col': ret[0][5]
