@@ -50,7 +50,7 @@ class SQLExecuter:
             if action:
                 self.function[action['type']](action)
         except Exception:
-            print("ERROR!!! Cannot Resolve The Given Input!")
+            print("ERROR!!! Cannot Resolve The Given Input!!")
 
 
     # create table
@@ -207,7 +207,6 @@ class SQLExecuter:
         })
 
     def _update(self, action):
-        # print(action)
         if self.currentDB is None:
             print("Did not Choose Database!")
             return

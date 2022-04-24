@@ -350,12 +350,15 @@ class Table:
                 filter.append("")
             result.append(re.findall(r"\((.*?)\)", field)[0])
 
+        if "" in filter:
+            for ff in filter:
+                if ff != "":
+                    raise Exception(f"ERROR!!! Cannot select both Column and {ff}")
         return result, filter
 
     def update(self, action):
-
         if not action.get('conditions'):
-            print("ERROR! Cannot Resolve Given Input!")
+            print("ERROR! Cannot Resolve Given Input!!")
             return
 
         cols_select = []
@@ -364,7 +367,9 @@ class Table:
             cols_select.append(condition['field'])
             conditions_select.append(condition['cond'])
         index_list_select = []
+
         for i in range(len(conditions_select)):
+
             cond = conditions_select[i]
             col = cols_select[i]
             if cond["operation"] not in self._condition_map:
@@ -372,31 +377,37 @@ class Table:
                 return
             tmp = self._filter(cond, col)
             index_list_select.append(tmp)
+
         index_select = index_list_select[0]
-        if action['condition_logic'] == 'AND':
-            # get intersection
-            for i in range(1, len(index_list_select)):
-                index_select = list(set(index_select).intersection(index_list_select[i]))
-            index_select.sort()
-        elif action['condition_logic'] == 'OR':
-            # get intersection
-            for i in range(1, len(index_list_select)):
-                index_select = list(set(index_select).union(index_list_select[i]))
-            index_select.sort()
+        if "condition_logic" in action.keys():
+            if action['condition_logic'] == 'AND':
+                # get intersection
+                for i in range(1, len(index_list_select)):
+                    index_select = list(set(index_select).intersection(index_list_select[i]))
+                index_select.sort()
+            elif action['condition_logic'] == 'OR':
+                # get intersection
+                for i in range(1, len(index_list_select)):
+                    index_select = list(set(index_select).union(index_list_select[i]))
+                index_select.sort()
+
 
         for i in range(len(index_list_select)):
             tmp = [val for val in index_select if val in index_list_select[i]]
 
         data = action['data']
-        print(f"data: {data}")
-        print(self.data)
         for i in data.keys():
             for j in tmp:
+                print(f"i is {i}, data is {type(data[i])}")
                 if self.is_number(data[i]):
+                    if self.primary == col and int(data[i]) in self.data[self.primary]:
+                        raise Exception("ERROR!!! Duplicate Primary Key Value Exists!")
                     self.data[i][j] = int(data[i])
-                else:
-                    self.data[i][j] = data[i]
 
+                else:
+                    if self.primary == col and data[i] in self.data[self.primary]:
+                        raise Exception("ERROR!!! Duplicate Primary Key Value Exists!")
+                    self.data[i][j] = data[i]
     # create a bplustree for the given column
     def createIndex(self, action):
         # check if the columns is in this table
