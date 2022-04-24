@@ -26,8 +26,8 @@ class SQLExecuter:
             'search': self._select,
             'delete': self._delete,
             'update': self._update,
-            'create index': self._createIndex,
-            'create db': self._createDatabase,
+            'create_index': self._createIndex,
+            'create_db': self._createDatabase,
             'use': self._useDatabase,
             'exit': self._exit,
             'show': self._show,
@@ -226,7 +226,7 @@ class SQLExecuter:
             self.database[action['name']] = {}
             db_path = os.path.join('db', action['name'])
             if not os.path.exists(db_path):
-                os.makedirs()
+                os.makedirs(db_path)
         else:
             print("Database '%s' Already Exists" % (action['name']))
 
@@ -312,9 +312,6 @@ class SQLExecuter:
                         f = open(os.path.join(filepath, table_name), 'rb')
                         self.database[db_name][table_name] = load(f)
                         f.close()
-
-    def _save(self, table):
-        path = "db"
 
     def _save(self):
         path = "db"
