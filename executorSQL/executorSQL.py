@@ -207,15 +207,18 @@ class SQLExecuter:
         })
 
     def _update(self, action):
-        if self.currentDB is None:
-            print("Did not Choose Database!")
-            return
-        self.tables[action['table']].update(action)
-        self.tables[action['table']].updateIndex()
-        self._updateTable({
-            'database': self.currentDB,
-            'name': action['table']
-        })
+        try:
+            if self.currentDB is None:
+                print("Did not Choose Database!")
+                return
+            self.tables[action['table']].update(action)
+            self.tables[action['table']].updateIndex()
+            self._updateTable({
+                'database': self.currentDB,
+                'name': action['table']
+            })
+        except Exception as e:
+            print(e.args[0])
 
     def _createDatabase(self, action):
         print(action)
