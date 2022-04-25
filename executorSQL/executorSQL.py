@@ -202,6 +202,9 @@ class SQLExecuter:
         if self.currentDB is None:
             print("Did not Choose Database!")
             return
+        if action['table'] not in self.tables.keys():
+            print("No Table Named %s" % (action['table'].strip()))
+            return
         self.tables[action['table']].delete(action)
         self.tables[action['table']].updateIndex()
         self._updateTable({
