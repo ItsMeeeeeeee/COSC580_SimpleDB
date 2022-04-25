@@ -158,34 +158,33 @@ class SQLParser:
         ret = comp.findall(' '.join(statement))
         # print(ret, ' '.join(statement))
         if ret and len(ret[0]) == 4:
-            # comp = self.__get_comp('GROUPBY')
-            # groupby = comp.findall(ret[0][3])
+            comp = self.__get_comp('GROUPBY')
+            groupby = comp.findall(ret[0][3])
 
             fields = ret[0][1]
             if fields != '*':
                 fields = [field.strip() for field in fields.split(',')]
             
-            # if groupby:
-            #     return {
-            #         'type': 'search',
-            #         'table': groupby[0][0],
-            #         'fields': fields,
-            #         'groupby' : groupby[0][3]
-            #     }
-            # else:
             action = {
                 'type': 'search',
                 'fields': fields
             }
+
+            if groupby:
+                action['table'] = groupby[0][0]
+                action['groupby'] = groupby[0][3]
+
+            if statement[-3] == 'ORDER' or statement[-3] == 'order':
+                action['orderby'] = statement[-1]
             try:
                 if 'limit' in ret[0][3]:
-                    action['limit'] = int(ret[0][3].split('limit')[1].strip())
+                    action['limit'] = int(ret[0][3].split('LIMIT')[1].split('order by')[0].split('ORDER BY')[0].strip())
                     action['table'] = ret[0][3].split('limit')[0].strip()
                 elif 'LIMIT' in ret[0][3]:
-                    action['limit'] = int(ret[0][3].split('LIMIT')[1].strip())
+                    action['limit'] = int(ret[0][3].split('LIMIT')[1].split('order by')[0].split('ORDER BY')[0].strip())
                     action['table'] = ret[0][3].split('LIMIT')[0].strip()
                 else:
-                    action['table'] = ret[0][3]
+                    action['table'] = ret[0][3].split(' ')[0]
             except Exception:
                 print("Please Provide Integer as LIMIT Constraint!!!")
 
