@@ -67,18 +67,33 @@ class Table:
         return value
 
     def _equal(self, cond, col):
+        if col in self.btrees.keys():
+            indexs = self.btrees[col]['tree'].search('=', self._format(col, cond["value"]))
+            return indexs
         return util.get_equal_keys_list(self.data[col], self._format(col, cond["value"]))
 
     def _bigger(self, cond, col):
+        if col in self.btrees.keys():
+            indexs = self.btrees[col]['tree'].search('>', self._format(col, cond["value"]))
+            return indexs
         return util.get_more_keys_list(self.data[col], self._format(col, cond["value"]))
 
     def _smaller(self, cond, col):
+        if col in self.btrees.keys():
+            indexs = self.btrees[col]['tree'].search('<', self._format(col, cond["value"]))
+            return indexs
         return util.get_less_keys_list(self.data[col], self._format(col, cond["value"]))
 
     def _biggerAndEqual(self, cond, col):
+        if col in self.btrees.keys():
+            indexs = self.btrees[col]['tree'].search('>=', self._format(col, cond["value"]))
+            return indexs
         return util.get_more_equal_keys_list(self.data[col], self._format(col, cond["value"]))
 
     def _smallerAndEqual(self, cond, col):
+        if col in self.btrees.keys():
+            indexs = self.btrees[col]['tree'].search('<=', self._format(col, cond["value"]))
+            return indexs
         return util.get_less_equal_keys_list(self.data[col], self._format(col, cond["value"]))
         # return [index for index, v in enumerate(self.data[col]) if v <= float(cond["value"])]
 
