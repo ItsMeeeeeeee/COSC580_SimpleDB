@@ -22,6 +22,7 @@ class SQLParser:
         self.__pattern_map = {
             'CREATE': r'(CREATE|create) (TABLE|table) (.*) \((.*)\)',
             'CREATE INDEX': r'(CREATE|create) (INDEX|index) (.*) (ON|on) (.*) \((.*)\)',
+            'DROP INDEX': r'(DROP|drop) (INDEX|index) (.*) (ON|on) (.*)',
             'CREATE DATABASE': r'(CREATE|create) (DATABASE|database) (.*)',
             'SELECT': r'(SELECT|select) (.*) (FROM|from) (.*)',
             'UPDATE': r'(UPDATE|update) (.*) (SET|set) (.*)',
@@ -357,6 +358,16 @@ class SQLParser:
                 'kind': 'table',
                 'name': statement[2]
             }
+        elif kind.upper() == 'INDEX':
+            comp = self.__get_comp('DROP INDEX')
+            ret = comp.findall(' '.join(statement))
+            if ret:
+                return {
+                    'type': 'drop',
+                    'kind': 'index',
+                    'name': statement[2],
+                    'table' : ret[0][4]
+                }
         print("ERROR!!! Cannot Resolve Given Input!")
         return
 
