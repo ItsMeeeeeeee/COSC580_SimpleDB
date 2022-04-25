@@ -132,7 +132,7 @@ class SQLParser:
     def __join(self, statement):
         comp = self.__get_comp('SELECT')
         ret = comp.findall(' '.join(statement))[0]
-        print(ret)
+        # print(ret)
         if ret and len(ret) == 4:
             fields = ret[1]
             tables = []

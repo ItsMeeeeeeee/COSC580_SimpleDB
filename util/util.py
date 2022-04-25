@@ -65,6 +65,7 @@ def merge_dict(result, res1):
         result[k] = v
     return result
 
+
 def merge_result_inner(result, res1, res2, first_col, second_col):
     # for the result1
     res_cols, res_values = get_col_values_from_dict(res1)
@@ -94,6 +95,7 @@ def merge_result_inner(result, res1, res2, first_col, second_col):
         result = merge_dict(result, res2)
         return result
 
+
 def _select_part_data(index_select, fields, res1):
     result = dict()
     for index in index_select:
@@ -111,6 +113,3 @@ def get_col_values_from_dict(res1):
         res_cols.append(k)
         res_values.append(v)
     return res_cols, res_values
-
-
-
