@@ -16,16 +16,14 @@ p.execute("SHOW tables")
 # p.execute("INSERT INTO TABLE2 VALUES (7, YES, 15)")
 # p.execute("INSERT INTO TABLE2 VALUES (8, YES, 18)")
 # p.execute("INSERT INTO TABLE2 VALUES (9, No, 22)")
-<<<<<<< HEAD
 
 # p.execute("CREATE INDEX index1 ON TABLE1 (COL2) ")
 p.execute("SELECT * FROM TABLE2")
-p.execute("UPDATE TABLE2 set COL1 = 2, COL3 = No, COL2 = 3 WHERE COL1 = 0")
+p.execute("UPDATE TABLE99 SET COL1 = 1, COL2 =1 WHERE COL1 = 0")
 p.execute("SELECT * FROM TABLE2")
 
 
-=======
->>>>>>> 8a9c62cf3eff3b4b18c9ad17d3d5da25b9717ee4
+
 # p.execute("SELECT * FROM TABLE2")
 # p.execute("SELECT AVG(COL2), AVG(COL1) FROM TABLE2 WHERE COL2 > 18 GROUP BY COL3")
 # p.execute("SELECT AVG(COL2), AVG(COL1) FROM TABLE2 GROUP BY COL3")
@@ -37,10 +35,10 @@ p.execute("SELECT * FROM TABLE2")
 # p.execute("DELETE FROM TABLE1 WHERE COL2 = 1 ")
 # p.execute("DELETE FROM TABLE1 WHERE COL2 = 1 OR COL1 = No")
 # p.execute("DELETE FROM TABLE2 WHERE COL2 = 19")
-<<<<<<< HEAD
+
 
 p.execute("EXIT")
-=======
+
 # p.execute("SELECT * FROM TABLE1")
 # p.execute("EXIT")
->>>>>>> 8a9c62cf3eff3b4b18c9ad17d3d5da25b9717ee4
+

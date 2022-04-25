@@ -208,6 +208,10 @@ class SQLExecuter:
 
     def _update(self, action):
         try:
+            if action['table'] not in self.tables.keys():
+                print(f"Not such table: {action['table']}")
+                return
+
             if self.currentDB is None:
                 print("Did not Choose Database!")
                 return

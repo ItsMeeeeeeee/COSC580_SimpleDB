@@ -25,6 +25,7 @@ class SQLParser:
             'CREATE DATABASE': r'(CREATE|create) (DATABASE|database) (.*)',
             'SELECT': r'(SELECT|select) (.*) (FROM|from) (.*)',
             'UPDATE': r'(UPDATE|update) (.*) (SET|set) (.*)',
+            'DELETE': r'(DELETE|delete) (FROM|from) (.*)',
             'INSERT': r'(INSERT|insert) (INTO|into) (.*) \((.*)\) (VALUES|values) \((.*)\)',
             'INSERT_2': r'(INSERT|insert) (INTO|into) (.*) (VALUES|values) \((.*)\)',
             'GROUPBY' : r'(.*) (GROUP|group) (BY|by) (.*)'
