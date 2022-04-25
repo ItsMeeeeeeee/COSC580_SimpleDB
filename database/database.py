@@ -162,7 +162,7 @@ class Table:
 
         return result
 
-    def _select_data_2(self, index_select, fields, filter, groupby):
+    def _select_data_2(self, index_select, fields, filter, groupby=None):
         col_set = list(set(self.data[groupby]))
         col_select = {}
         for v in col_set:
