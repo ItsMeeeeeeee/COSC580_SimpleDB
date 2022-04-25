@@ -57,16 +57,17 @@ def _print(res, type=None, limit=None):
     print(tb)
 
 
-def merge_dict(result, res1):
+def merge_dict(result, res1, table):
     # merge first table into empty dict
     for k, v in res1.items():
         # if result.get(k, False):
         #     continue
-        result[k] = v
+        # result[k] = v
+        result[f"{table}.{k}"] = v
     return result
 
 
-def merge_result_inner(result, res1, res2, first_col, second_col):
+def merge_result_inner(result, res1, res2, first_col, second_col, first_table, second_table):
     # for the result1
     res_cols, res_values = get_col_values_from_dict(res1)
     # for the result2
@@ -82,8 +83,8 @@ def merge_result_inner(result, res1, res2, first_col, second_col):
             if value in res1[second_col]:
                 res_inner.append(index)
         res_select = _select_part_data(res_inner, res_cols, res2)
-        result = merge_dict(result, res_select)
-        result = merge_dict(result, res2)
+        result = merge_dict(result, res_select, second_table)
+        result = merge_dict(result, res1, first_table)
         return result
     else:
         res_inner = []
@@ -91,8 +92,8 @@ def merge_result_inner(result, res1, res2, first_col, second_col):
             if value in res2[second_col]:
                 res_inner.append(index)
         res_select = _select_part_data(res_inner, res_cols, res1)
-        result = merge_dict(result, res_select)
-        result = merge_dict(result, res2)
+        result = merge_dict(result, res_select, first_table)
+        result = merge_dict(result, res2, second_table)
         return result
 
 
