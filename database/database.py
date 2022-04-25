@@ -298,12 +298,11 @@ class Table:
         for var in result.keys():
             type[var] = (self.type[self.var.index(var)])
 
+        orderby = None
         if action.get('orderby'):
-            for var, values in result.items():
-                new_values = [i for _,i in sorted(zip(self.data[action['orderby']],values))]
-                result[var] = new_values
+            orderby = self.data[action['orderby']]
         
-        return result, type
+        return result, type, orderby
 
     def _insert(self, type, col, value):
         if type == 'int':
