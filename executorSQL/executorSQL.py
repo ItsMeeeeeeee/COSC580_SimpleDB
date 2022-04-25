@@ -115,8 +115,11 @@ class SQLExecuter:
                 return
             res, type = self.tables[action['table']].select(action)
             # self.tables[action['table']].updateIndex()
-            _print(res, type)
-                
+            
+            if action.get('limit'):
+                _print(res, type, action['limit'])
+            else:
+                _print(res, type)
         except Exception as e:
             print(e.args[0])
         # print(f"res {res}")

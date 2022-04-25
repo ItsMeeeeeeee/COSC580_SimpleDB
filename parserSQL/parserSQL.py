@@ -78,7 +78,16 @@ class SQLParser:
             else:
                 sub_statement = statement[1].split('group by')
             if len(sub_statement) > 1:
-                action['groupby'] = sub_statement[1].strip()
+                if 'limit' in sub_statement[1]:
+                    sub_sub_statement = sub_statement[1].split('limit')
+                else:
+                    sub_sub_statement = sub_statement[1].split('LIMIT')
+                if len(sub_sub_statement) == 1:
+                    action['groupby'] = sub_statement[1].strip()
+                else:
+                    action['groupby'] = sub_sub_statement[0].strip()
+                    action['limit'] = sub_sub_statement[1].strip()
+
             if 'and' in sub_statement[0].lower():
                 conditions_list = self.__filter_space(sub_statement[0].split("AND"))
                 action['condition_logic'] = 'AND'
@@ -149,26 +158,38 @@ class SQLParser:
         ret = comp.findall(' '.join(statement))
         # print(ret, ' '.join(statement))
         if ret and len(ret[0]) == 4:
-            comp = self.__get_comp('GROUPBY')
-            groupby = comp.findall(ret[0][3])
+            # comp = self.__get_comp('GROUPBY')
+            # groupby = comp.findall(ret[0][3])
 
             fields = ret[0][1]
             if fields != '*':
                 fields = [field.strip() for field in fields.split(',')]
-                
-            if groupby:
-                return {
-                    'type': 'search',
-                    'table': groupby[0][0],
-                    'fields': fields,
-                    'groupby' : groupby[0][3]
-                }
-            else:
-                return {
-                    'type': 'search',
-                    'table': ret[0][3],
-                    'fields': fields
-                }
+            
+            # if groupby:
+            #     return {
+            #         'type': 'search',
+            #         'table': groupby[0][0],
+            #         'fields': fields,
+            #         'groupby' : groupby[0][3]
+            #     }
+            # else:
+            action = {
+                'type': 'search',
+                'fields': fields
+            }
+            try:
+                if 'limit' in ret[0][3]:
+                    action['limit'] = int(ret[0][3].split('limit')[1].strip())
+                    action['table'] = ret[0][3].split('limit')[0].strip()
+                elif 'LIMIT' in ret[0][3]:
+                    action['limit'] = int(ret[0][3].split('LIMIT')[1].strip())
+                    action['table'] = ret[0][3].split('LIMIT')[0].strip()
+                else:
+                    action['table'] = ret[0][3]
+            except Exception:
+                print("Please Provide Integer as LIMIT Constraint!!!")
+
+            return action
         return None
 
     def __update(self, statement):

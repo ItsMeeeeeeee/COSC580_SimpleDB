@@ -27,7 +27,7 @@ def get_more_equal_keys_list(list, value):
 
 
 # format print
-def _print(res, type=None):
+def _print(res, type=None, limit=None):
     """
     Print the select relations
     :param res: THis is result json like
@@ -49,7 +49,11 @@ def _print(res, type=None):
     tb = PrettyTable()
     cols = list(res.keys())
     for col in cols:
-        tb.add_column(col, res[col])
+        if limit:
+            if limit < len(res[col]):
+                tb.add_column(col, res[col][0:limit])
+        else:
+            tb.add_column(col, res[col])
     print(tb)
 
 
