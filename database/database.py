@@ -434,12 +434,12 @@ class Table:
     def createIndex(self, action):
         # check if the columns is in this table
         if action['col'] not in self.var:
-            print('ERROR! Cannot resolve the given input column!')
-            return
+            print("ERROR! No Column Named '%s'" % (action['col']))
+            return False
         # init the name and tree
         if action['col'] in self.btrees.keys():
             print('Already Exist index on %s' % (action['col']))
-            return
+            return False
         self.btrees[action['col']] = {
             'name': action['name'],
             'tree': BPlusTree()
@@ -447,6 +447,8 @@ class Table:
         # insert index as value where value as key
         for i in range(len(self.data[action['col']])):
             self.btrees[action['col']]['tree'].insert(self.data[action['col']][i], i)
+        
+        return True
     def dropIndex(self, action):
         cols = []
         for key, value in self.btrees.items():
@@ -455,6 +457,8 @@ class Table:
         if not cols == []:
             for col in cols:
                 del self.btrees[col]
+            return True
+        return False
 
     def checkColumn(self, input_col):
         table_col = [*self.data]
