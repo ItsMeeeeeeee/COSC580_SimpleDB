@@ -333,7 +333,7 @@ class SQLExecuter:
         os._exit(0)
 
     def _load(self):
-        db_path = "db"
+        db_path = os.path.join(os.getcwd(), "db")
         for path, db_list, _ in os.walk(db_path):
             for db_name in db_list:
                 self.database[db_name] = {}
@@ -344,7 +344,7 @@ class SQLExecuter:
                         f.close()
 
     def _save(self):
-        path = "db"
+        path = os.path.join(os.getcwd(), "db")
         f = None
         for dname, tables in self.database.items():
             db_path = os.path.join(path, dname)
