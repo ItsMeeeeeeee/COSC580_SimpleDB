@@ -79,11 +79,11 @@ class SQLExecuter:
         if self.currentDB == None:
             print("Did not Choose Database!")
             return
-        self.tables[action['table']].createIndex(action)
-        self._updateTable({
-            'database': self.currentDB,
-            'name': action['table']
-        })
+        if self.tables[action['table']].createIndex(action):
+            self._updateTable({
+                'database': self.currentDB,
+                'name': action['table']
+            })
 
     # insert data into sepcific table
     def _insert(self, action):
@@ -300,7 +300,11 @@ class SQLExecuter:
             if action['table'] not in self.tables.keys():
                 print("No Table Named %s", action['table'])
                 return 
-            self.tables[action['table']].dropIndex(action)
+            if self.tables[action['table']].dropIndex(action):
+                self._updateTable({
+                    'database': self.currentDB,
+                    'name': action['table']
+                })
 
     def _dropDB(self, action):
         # print(action)
