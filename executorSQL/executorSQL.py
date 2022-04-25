@@ -2,8 +2,8 @@ from parserSQL.parserSQL import SQLParser
 from database.database import Table
 from util.util import _print, merge_dict, merge_result_inner
 
-import shutil
-import pickle
+from shutil import rmtree
+from pickle import dump, load
 import os
 
 
@@ -26,8 +26,8 @@ class SQLExecuter:
             'search': self._select,
             'delete': self._delete,
             'update': self._update,
-            'create index': self._createIndex,
-            'create db': self._createDatabase,
+            'create_index': self._createIndex,
+            'create_db': self._createDatabase,
             'use': self._useDatabase,
             'exit': self._exit,
             'show': self._show,
@@ -115,8 +115,11 @@ class SQLExecuter:
                 return
             res, type = self.tables[action['table']].select(action)
             # self.tables[action['table']].updateIndex()
-            _print(res, type)
-                
+            
+            if action.get('limit'):
+                _print(res, type, action['limit'])
+            else:
+                _print(res, type)
         except Exception as e:
             print(e.args[0])
         # print(f"res {res}")
@@ -157,9 +160,9 @@ class SQLExecuter:
                 'table': first_table,
                 'fields': action['fields'],
             }
-        print('read table1')
+        # print('read table1')
         res1, type1 = self.tables[first_table].select(action_to_table1)
-        print(res1)
+        # print(res1)
         # use join fields to search table2 based on the values we select in table1
         for k, v in action['join fields'].items():
             if k != first_table:
@@ -183,9 +186,9 @@ class SQLExecuter:
             'fields': action['fields'],
             'conditions': conditions
         }
-        print("read table 2")
+        # print("read table 2")
         res2, type2 = self.tables[second_table].select(action_to_table2)
-        print(res2)
+        # print(res2)
         result = {}
         types = {}
         result = merge_result_inner(result, res1, res2, first_table_col, second_table_field)
@@ -198,6 +201,9 @@ class SQLExecuter:
         # print(action)
         if self.currentDB is None:
             print("Did not Choose Database!")
+            return
+        if action['table'] not in self.tables.keys():
+            print("No Table Named %s" % (action['table'].strip()))
             return
         self.tables[action['table']].delete(action)
         self.tables[action['table']].updateIndex()
@@ -230,7 +236,7 @@ class SQLExecuter:
             self.database[action['name']] = {}
             db_path = os.path.join('db', action['name'])
             if not os.path.exists(db_path):
-                os.makedirs()
+                os.makedirs(db_path)
         else:
             print("Database '%s' Already Exists" % (action['name']))
 
@@ -283,7 +289,7 @@ class SQLExecuter:
     def _dropDB(self, action):
         # print(action)
         folderpath = os.path.join("db", action['name'])
-        shutil.rmtree(folderpath)
+        rmtree(folderpath)
 
     def _dropTable(self, action):
         # print(action)
@@ -298,7 +304,7 @@ class SQLExecuter:
         if os.path.exists(filepath):
             os.remove(filepath)
         f = open(filepath, 'wb')
-        pickle.dump(self.tables[action['name']], f)
+        dump(self.tables[action['name']], f)
         f.close()
 
     def _exit(self, action):
@@ -314,11 +320,8 @@ class SQLExecuter:
                 for filepath, _, table_list in os.walk(os.path.join(path, db_name)):
                     for table_name in table_list:
                         f = open(os.path.join(filepath, table_name), 'rb')
-                        self.database[db_name][table_name] = pickle.load(f)
+                        self.database[db_name][table_name] = load(f)
                         f.close()
-
-    def _save(self, table):
-        path = "db"
 
     def _save(self):
         path = "db"
@@ -330,5 +333,5 @@ class SQLExecuter:
             for tname, table in tables.items():
                 file_path = os.path.join(db_path, tname)
                 f = open(file_path, 'wb')
-                pickle.dump(table, f)
+                dump(table, f)
                 f.close()

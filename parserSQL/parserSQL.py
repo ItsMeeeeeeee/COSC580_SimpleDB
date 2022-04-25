@@ -1,7 +1,7 @@
 #  coding = utf-8
 
 from ast import Sub
-import re
+from re import compile
 from tokenize import group
 
 
@@ -79,7 +79,16 @@ class SQLParser:
             else:
                 sub_statement = statement[1].split('group by')
             if len(sub_statement) > 1:
-                action['groupby'] = sub_statement[1].strip()
+                if 'limit' in sub_statement[1]:
+                    sub_sub_statement = sub_statement[1].split('limit')
+                else:
+                    sub_sub_statement = sub_statement[1].split('LIMIT')
+                if len(sub_sub_statement) == 1:
+                    action['groupby'] = sub_statement[1].strip()
+                else:
+                    action['groupby'] = sub_sub_statement[0].strip()
+                    action['limit'] = sub_sub_statement[1].strip()
+
             if 'and' in sub_statement[0].lower():
                 conditions_list = self.__filter_space(sub_statement[0].split("AND"))
                 action['condition_logic'] = 'AND'
@@ -117,7 +126,7 @@ class SQLParser:
         return action
 
     def __get_comp(self, action):
-        return re.compile(self.__pattern_map[action])
+        return compile(self.__pattern_map[action])
 
 
     def __join(self, statement):
@@ -156,20 +165,31 @@ class SQLParser:
             fields = ret[0][1]
             if fields != '*':
                 fields = [field.strip() for field in fields.split(',')]
-                
+            
+            action = {
+                'type': 'search',
+                'fields': fields
+            }
+
             if groupby:
-                return {
-                    'type': 'search',
-                    'table': groupby[0][0],
-                    'fields': fields,
-                    'groupby' : groupby[0][3]
-                }
-            else:
-                return {
-                    'type': 'search',
-                    'table': ret[0][3],
-                    'fields': fields
-                }
+                action['table'] = groupby[0][0]
+                action['groupby'] = groupby[0][3]
+
+            if statement[-3] == 'ORDER' or statement[-3] == 'order':
+                action['orderby'] = statement[-1]
+            try:
+                if 'limit' in ret[0][3]:
+                    action['limit'] = int(ret[0][3].split('LIMIT')[1].split('order by')[0].split('ORDER BY')[0].strip())
+                    action['table'] = ret[0][3].split('limit')[0].strip()
+                elif 'LIMIT' in ret[0][3]:
+                    action['limit'] = int(ret[0][3].split('LIMIT')[1].split('order by')[0].split('ORDER BY')[0].strip())
+                    action['table'] = ret[0][3].split('LIMIT')[0].strip()
+                else:
+                    action['table'] = ret[0][3].split(' ')[0]
+            except Exception:
+                print("Please Provide Integer as LIMIT Constraint!!!")
+
+            return action
         return None
 
     def __update(self, statement):
@@ -263,7 +283,7 @@ class SQLParser:
         ret = comp.findall(' '.join(statement))
         if ret:
             info = {
-                'type': 'create db',
+                'type': 'create_db',
                 'name': ret[0][2]
             }
             return info
@@ -290,7 +310,7 @@ class SQLParser:
         ret = comp.findall(' '.join(statement))
         if ret:
             info = {
-                'type': 'create index',
+                'type': 'create_index',
                 'table': ret[0][4],
                 'name': ret[0][2],
                 'col': ret[0][5]

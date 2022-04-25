@@ -1,7 +1,7 @@
 from operator import index
 from util import util
 from bplus_tree import BPlusTree
-import re
+from re import findall
 
 
 class Table:
@@ -28,7 +28,7 @@ class Table:
             '>=': self._biggerAndEqual,
             '<=': self._smallerAndEqual,
         }
-        
+
         self._select_filter_map = {
             'avg': self._select_avg,
             'count': self._select_count,
@@ -116,17 +116,14 @@ class Table:
                 del self.data[col][index]
             if self.primary == 'index__':
                 del self.data[self.primary][index]
+
     ########################################################################################################
-
-    def _groupBy(self, action):
-        print(action)
-
     def _select_avg(self, field, index):
         _sum = 0
         for i in index:
             _sum += self.data[field][i]
 
-        return [_sum/len(index)]
+        return [_sum / len(index)]
 
     def _select_count(self, field, index):
         return [len(index)]
@@ -138,15 +135,13 @@ class Table:
                 _max = self.data[field][i]
         return [_max]
 
-    def _select_min(self, field ,index):
+    def _select_min(self, field, index):
         _min = self.data[field][index[0]]
         for i in index:
             if _min > self.data[field][i]:
                 _min = self.data[field][i]
 
         return [_min]
-
-
 
     # a helper function used to help select function to get corresponding info
     def _select_data(self, index_select, fields):
@@ -164,9 +159,10 @@ class Table:
         # check the filter of selected data
         for i in range(len(fields)):
             # print(f"index_select {index_select}")
-            result[fields[i]] = self._select_filter_map[filter[i]](fields[i],index_select)
+            result[fields[i]] = self._select_filter_map[filter[i]](fields[i], index_select)
 
         return result
+
     def _select_data_2(self, index_select, fields, filter, groupby):
         col_set = list(set(self.data[groupby]))
         col_select = {}
@@ -177,7 +173,7 @@ class Table:
                 if self.data[groupby][i] == v:
                     col_select[v].append(i)
         result = {
-            groupby : col_set
+            groupby: col_set
         }
         for col in col_set:
             for i in range(len(fields)):
@@ -186,7 +182,8 @@ class Table:
                 if col_select[col] == []:
                     result[filter[i] + '_' + fields[i]].append(0)
                 else:
-                    result[filter[i] + '_' + fields[i]].append(self._select_filter_map[filter[i]](fields[i], col_select[col])[0])
+                    result[filter[i] + '_' + fields[i]].append(
+                        self._select_filter_map[filter[i]](fields[i], col_select[col])[0])
 
         # # check the filter of selected data
         # for i in range(len(fields)):
@@ -231,7 +228,7 @@ class Table:
 
             # set a condition check for only one constraint
         if len(index_list_select) == 1:
-            print('Index: ', index_list_select[0])
+            # print('Index: ', index_list_select[0])
             self._delete_data(index_list_select[0])
         else:
             index_select = index_list_select[0]
@@ -245,14 +242,21 @@ class Table:
                 for i in range(1, len(index_list_select)):
                     index_select = list(set(index_select).union(index_list_select[i]))
                 index_select.sort()
-            print('Index: ', index_select)
+            # print('Index: ', index_select)
             # delete data from table according to index in descending order
             self._delete_data(index_select)
             return
 
     # Select By Conditions
     def select(self, action):
+<<<<<<< HEAD
         print(f"token {action}")
+=======
+        if action.get('orderby'):
+            if action['orderby'] not in self.var:
+                print('Error! Cannot Resolve Given Column: ', action['orderby'])
+                return
+>>>>>>> 0aecf8ff9d5f0d48fb179a69a1f9452db3071bba
         if action['fields'] == '*':
             fields = self.var
             filter = None
@@ -282,8 +286,8 @@ class Table:
                 for i in range(1, len(index_list_select)):
                     index_select = list(set(index_select).union(index_list_select[i]))
             index_select.sort()
-        
-        print('Index: ', index_select)
+
+        # print('Index: ', index_select)
         if filter:
             if "groupby" in action.keys():
                 result = self._select_data_2(index_select, fields, filter, action['groupby'])
@@ -298,6 +302,12 @@ class Table:
         type = {}
         for var in result.keys():
             type[var] = (self.type[self.var.index(var)])
+
+        if action.get('orderby'):
+            for var, values in result.items():
+                new_values = [i for _,i in sorted(zip(self.data[action['orderby']],values))]
+                result[var] = new_values
+        
         return result, type
 
     def _insert(self, type, col, value):
@@ -324,7 +334,7 @@ class Table:
             # check if the provided columns matches
             if len(action['values']) != len(self.var):
                 print('Can not resolve input')
-            else:  
+            else:
                 for i in range(len(action['values'])):
                     self._insert(self.type[i][0].lower(), self.var[i], action['values'][i])
 
@@ -350,7 +360,7 @@ class Table:
                 filter.append('min')
             else:
                 filter.append("")
-            result.append(re.findall(r"\((.*?)\)", field)[0])
+            result.append(findall(r"\((.*?)\)", field)[0])
 
         if "" in filter:
             for ff in filter:
@@ -393,7 +403,6 @@ class Table:
                     index_select = list(set(index_select).union(index_list_select[i]))
                 index_select.sort()
 
-
         for i in range(len(index_list_select)):
             tmp = [val for val in index_select if val in index_list_select[i]]
 
@@ -409,6 +418,7 @@ class Table:
                     if self.primary == i and data[i] in self.data[self.primary]:
                         raise Exception("ERROR!!! Duplicate Primary Key Value Exists!")
                     self.data[i][j] = data[i]
+
     # create a bplustree for the given column
     def createIndex(self, action):
         # check if the columns is in this table

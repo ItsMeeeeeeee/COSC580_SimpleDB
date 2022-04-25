@@ -1,4 +1,3 @@
-from parserSQL import *
 from executorSQL import *
 
 p = executorSQL.SQLExecuter()
@@ -33,11 +32,11 @@ p.execute("USE db")
 # p.execute("INSERT INTO TABLE2 VALUES (YES, 18)")
 # p.execute("INSERT INTO TABLE2 VALUES (No, 22)")
 # p.execute("CREATE INDEX index1 ON TABLE1 (COL2) ")
-# p.execute("SELECT * FROM TABLE1")
+p.execute("SELECT * FROM Course")
 # p.execute("SELECT * FROM TABLE2")
 # todo TABLE.COL --> CONDITION
 # p.execute("UPDATE TABLE1 set COL1 = YES, COL2 = 6 WHERE COL2 = 4 OR COL2 = 10 ")
-p.execute("SELECT * FROM Student JOIN Course ON Student.ID = Course.ID WHERE Student.ID > 3")
+# p.execute("SELECT * FROM Student JOIN Course ON Student.ID = Course.ID WHERE Student.ID > 3")
 # p.execute("DELETE FROM TABLE1 WHERE COL2 = 1 ")
 # p.execute("DELETE FROM TABLE1 WHERE COL2 = 1 OR COL1 = No")
 # p.execute("DELETE FROM TABLE2 WHERE COL2 = 19")
