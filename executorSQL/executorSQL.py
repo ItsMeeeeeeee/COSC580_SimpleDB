@@ -5,6 +5,7 @@ from util.util import _print, merge_dict, merge_result_inner
 from shutil import rmtree
 from pickle import dump, load
 import os
+import copy
 
 
 class SQLExecuter:
@@ -113,8 +114,13 @@ class SQLExecuter:
             if action['table'] not in self.tables.keys():
                 print('Error!!! No Table Named %s' % (action['table']))
                 return
-            res, type = self.tables[action['table']].select(action)
-            # self.tables[action['table']].updateIndex()
+            res, type, orderby = self.tables[action['table']].select(action)
+            
+            if orderby:
+                for key, value in res.items():
+                    new_value = copy.deepcopy(value)
+                    new_value = [i for _,i in sorted(zip(orderby, new_value))]
+                    res[key] = new_value
             
             if action.get('limit'):
                 _print(res, type, action['limit'])

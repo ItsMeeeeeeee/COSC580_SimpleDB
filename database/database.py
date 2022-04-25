@@ -249,14 +249,10 @@ class Table:
 
     # Select By Conditions
     def select(self, action):
-<<<<<<< HEAD
-        print(f"token {action}")
-=======
         if action.get('orderby'):
             if action['orderby'] not in self.var:
                 print('Error! Cannot Resolve Given Column: ', action['orderby'])
                 return
->>>>>>> 0aecf8ff9d5f0d48fb179a69a1f9452db3071bba
         if action['fields'] == '*':
             fields = self.var
             filter = None
@@ -303,12 +299,11 @@ class Table:
         for var in result.keys():
             type[var] = (self.type[self.var.index(var)])
 
+        orderby = None
         if action.get('orderby'):
-            for var, values in result.items():
-                new_values = [i for _,i in sorted(zip(self.data[action['orderby']],values))]
-                result[var] = new_values
+            orderby = self.data[action['orderby']]
         
-        return result, type
+        return result, type, orderby
 
     def _insert(self, type, col, value):
         if type == 'int':
