@@ -176,15 +176,19 @@ class SQLParser:
                 action['table'] = groupby[0][0]
                 action['groupby'] = groupby[0][3]
 
-            if statement[-3] == 'ORDER' or statement[-3] == 'order':
-                action['orderby'] = statement[-1]
+            if 'ORDER' in statement:
+                index = statement.index('BY')
+                action['orderby'] = statement[index + 1]
+            elif 'order' in statement:
+                index = statement.index('by')
+                action['orderby'] = statement[index + 1]
             try:
                 if 'limit' in ret[0][3]:
                     action['limit'] = int(ret[0][3].split('LIMIT')[1].split('order by')[0].split('ORDER BY')[0].strip())
-                    action['table'] = ret[0][3].split('limit')[0].strip()
+                    action['table'] = ret[0][3].split('limit')[0].split('order by')[0].split('ORDER BY')[0].strip()
                 elif 'LIMIT' in ret[0][3]:
                     action['limit'] = int(ret[0][3].split('LIMIT')[1].split('order by')[0].split('ORDER BY')[0].strip())
-                    action['table'] = ret[0][3].split('LIMIT')[0].strip()
+                    action['table'] = ret[0][3].split('LIMIT')[0].split('order by')[0].split('ORDER BY')[0].strip()
                 else:
                     action['table'] = ret[0][3].split(' ')[0]
             except Exception:
