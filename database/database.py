@@ -172,9 +172,13 @@ class Table:
         result = dict()
         # check the filter of selected data
         for i in range(len(fields)):
+            if fields[i] == '*':
+                field = self.primary
+            else:
+                field = fields[i]
             # print(f"index_select {index_select}")
             if filter[i] in self._select_filter_map.keys():
-                result[fields[i]] = self._select_filter_map[filter[i]](fields[i], index_select)
+                result[fields[i]] = self._select_filter_map[filter[i]](field, index_select)
 
         return result
 
@@ -309,6 +313,7 @@ class Table:
                 return result, None, orderby
             else:
                 result = self._select_data_3(index_select, fields, filter)
+                return result, None, None
         else:
             if action.get('groupby'):
                 raise Exception("ERROR!!! Cannot Run 'GROUP BY' Without Constraint!")
