@@ -154,7 +154,7 @@ class Table:
                 result[field].append(self.data[field][index])
         return result
 
-    def _select_data_2(self, index_select, fields, filter):
+    def _select_data_3(self, index_select, fields, filter):
         result = dict()
         # check the filter of selected data
         for i in range(len(fields)):
@@ -205,6 +205,7 @@ class Table:
     #     self._delete_data(index_delete)
 
     def delete(self, action):
+
         if action.get('conditions'):
             cols_select = []
             conditions_select = []
@@ -284,11 +285,11 @@ class Table:
 
         # print('Index: ', index_select)
         if filter:
-            if action.get('groupby'):
+            if "groupby" in action.keys():
                 result = self._select_data_2(index_select, fields, filter, action['groupby'])
                 return result, None
             else:
-                result = self._select_data_2(index_select, fields, filter)
+                result = self._select_data_3(index_select, fields, filter)
         else:
             if action.get('groupby'):
                 raise Exception("ERROR!!! Cannot Run 'GROUP BY' Without Constraint!")
