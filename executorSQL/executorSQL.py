@@ -191,9 +191,9 @@ class SQLExecuter:
         # print(res2)
         result = {}
         types = {}
-        result = merge_result_inner(result, res1, res2, first_table_col, second_table_field)
-        types = merge_dict(types, type1)
-        merge_dict(types, type2)
+        result = merge_result_inner(result, res1, res2, first_table_col, second_table_field, first_table, second_table)
+        types = merge_dict(types, type1, first_table)
+        merge_dict(types, type2, second_table)
 
         _print(result, types)
 
