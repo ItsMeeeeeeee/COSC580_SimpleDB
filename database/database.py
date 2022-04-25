@@ -146,7 +146,6 @@ class Table:
     # a helper function used to help select function to get corresponding info
     def _select_data(self, index_select, fields):
         result = dict()
-
         for index in index_select:
             for field in fields:
                 if not result.get(field, False):
@@ -283,11 +282,15 @@ class Table:
                     index_select = list(set(index_select).union(index_list_select[i]))
             index_select.sort()
 
+        orderby = None
+        if action.get('orderby'):
+            orderby = self.data[action['orderby']]
+
         # print('Index: ', index_select)
         if filter:
             if "groupby" in action.keys():
                 result = self._select_data_2(index_select, fields, filter, action['groupby'])
-                return result, None
+                return result, None, orderby
             else:
                 result = self._select_data_3(index_select, fields, filter)
         else:
@@ -299,9 +302,6 @@ class Table:
         for var in result.keys():
             type[var] = (self.type[self.var.index(var)])
 
-        orderby = None
-        if action.get('orderby'):
-            orderby = self.data[action['orderby']]
         
         return result, type, orderby
 
