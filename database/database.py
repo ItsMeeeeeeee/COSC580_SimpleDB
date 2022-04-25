@@ -173,7 +173,8 @@ class Table:
         # check the filter of selected data
         for i in range(len(fields)):
             # print(f"index_select {index_select}")
-            result[fields[i]] = self._select_filter_map[filter[i]](fields[i], index_select)
+            if filter[i] in self._select_filter_map.keys():
+                result[fields[i]] = self._select_filter_map[filter[i]](fields[i], index_select)
 
         return result
 
@@ -302,7 +303,7 @@ class Table:
             orderby = self.data[action['orderby']]
 
         # print('Index: ', index_select)
-        if filter:
+        if filter and not filter == [''] :
             if "groupby" in action.keys():
                 result = self._select_data_2(index_select, fields, filter, action['groupby'])
                 return result, None, orderby
