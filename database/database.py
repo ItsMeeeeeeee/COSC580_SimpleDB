@@ -436,6 +436,9 @@ class Table:
             print('ERROR! Cannot resolve the given input column!')
             return
         # init the name and tree
+        if action['col'] in self.btrees.keys():
+            print('Already Exist index on %s' % (action['col']))
+            return
         self.btrees[action['col']] = {
             'name': action['name'],
             'tree': BPlusTree()
@@ -443,6 +446,14 @@ class Table:
         # insert index as value where value as key
         for i in range(len(self.data[action['col']])):
             self.btrees[action['col']]['tree'].insert(self.data[action['col']][i], i)
+    def dropIndex(self, action):
+        cols = []
+        for key, value in self.btrees.items():
+            if value['name'] == action['name']:
+                cols.append(key)
+        if not cols == []:
+            for col in cols:
+                del self.btrees[col]
 
     def checkColumn(self, input_col):
         table_col = [*self.data]

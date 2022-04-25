@@ -277,20 +277,30 @@ class SQLExecuter:
         if action['kind'] == 'database':
             if action['name'] not in self.database.keys():
                 print("No Database Named %s", action['name'])
+                return
             self._dropDB(action)
             del self.database[action['name']]
             if self.currentDB == action['name']:
                 self.currentDB = None
-        else:
+        elif action['kind'] == 'table':
             if self.currentDB == None:
                 print("Did not Choose Database!")
                 return
             if action['name'] not in self.tables.keys():
                 print("No Table Named %s", action['name'])
+                return
             action['database'] = self.currentDB
             self._dropTable(action)
             del self.database[self.currentDB][action['name']]
             self.tables = self.database[self.currentDB]
+        elif action['kind'] == 'index':
+            if self.currentDB == None:
+                print("Did not Choose Database!")
+                return
+            if action['table'] not in self.tables.keys():
+                print("No Table Named %s", action['table'])
+                return 
+            self.tables[action['table']].dropIndex(action)
 
     def _dropDB(self, action):
         # print(action)
