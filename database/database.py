@@ -248,6 +248,10 @@ class Table:
 
     # Select By Conditions
     def select(self, action):
+        if action.get('orderby'):
+            if action['orderby'] not in self.var:
+                print('Error! Cannot Resolve Given Column: ', action['orderby'])
+                return
         if action['fields'] == '*':
             fields = self.var
             filter = None
@@ -293,6 +297,12 @@ class Table:
         type = {}
         for var in result.keys():
             type[var] = (self.type[self.var.index(var)])
+
+        if action.get('orderby'):
+            for var, values in result.items():
+                new_values = [i for _,i in sorted(zip(self.data[action['orderby']],values))]
+                result[var] = new_values
+        
         return result, type
 
     def _insert(self, type, col, value):
