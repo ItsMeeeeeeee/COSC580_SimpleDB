@@ -157,7 +157,10 @@ class SQLExecuter:
             action_to_table1 = {
                 'type': 'search',
                 'table': first_table,
-                'conditions': action['conditions']
+                'conditions': [{
+                    'field': first_table_cond_field,
+                    'cond': action['conditions'][0]['cond'],
+                }]
             }
         else:
             first_table = list(action['join fields'].keys())[0]
