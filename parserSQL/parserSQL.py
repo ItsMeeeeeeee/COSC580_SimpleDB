@@ -75,6 +75,12 @@ class SQLParser:
 
         conditions = []
         if len(statement) == 2:
+            if 'ORDER BY' in statement[1]:
+                action['orderby'] = statement[1].split('ORDER BY')[1].strip().split(' ')[0]
+                statement[1] = statement[1].replace('ORDER BY ' + action['orderby'], '')
+            elif 'order by' in statement[1]:
+                action['orderby'] = statement[1].split('order by')[1].strip().split(' ')[0]
+                statement[1] = statement[1].replace('ORDER BY ' + action['orderby'], '')
             if 'GROUP BY' in statement[1]:
                 sub_statement = statement[1].split('GROUP BY')
             else:
@@ -89,6 +95,13 @@ class SQLParser:
                 else:
                     action['groupby'] = sub_sub_statement[0].strip()
                     action['limit'] = sub_sub_statement[1].strip()
+            else:
+                if 'LIMIT' in sub_statement[0]:
+                    action['limit'] = sub_statement[0].split('LIMIT')[1].strip().split(' ')[0]
+                    sub_statement[0] = sub_statement[0].replace('LIMIT ' + action['limit'], '')
+                elif 'limit' in sub_statement[0]:
+                    action['limit'] = sub_statement[0].split('limit')[1].strip().split(' ')[0]
+                    sub_statement[0] = sub_statement[0].replace('limit ' + action['limit'], '')
 
             if 'and' in sub_statement[0].lower():
                 conditions_list = self.__filter_space(sub_statement[0].split("AND"))
