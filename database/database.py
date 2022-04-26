@@ -34,6 +34,7 @@ class Table:
             'count': self._select_count,
             'max': self._select_max,
             'min': self._select_min,
+            'sum': self._select_sum,
         }
 
         # self defined index, used if no primary key given
@@ -158,6 +159,13 @@ class Table:
 
         return [_min]
 
+    def _select_sum(self, field, index):
+        _sum = 0
+        for i in index:
+            _sum += self.data[field][i]
+
+        return [_sum]
+
     # a helper function used to help select function to get corresponding info
     def _select_data(self, index_select, fields):
         result = dict()
@@ -176,7 +184,7 @@ class Table:
                 field = self.primary
             else:
                 field = fields[i]
-            # print(f"index_select {index_select}")
+
             if filter[i] in self._select_filter_map.keys():
                 result[f"{filter[i]}_{fields[i]}"] = self._select_filter_map[filter[i]](field, index_select)
 
@@ -212,16 +220,8 @@ class Table:
 
         return result
 
-    # def delete(self, action):
-    #     # get intersection
-
-    #     index_list_delete = self.condition_filter(action["conditions"])
-    #     index_delete = index_list_delete[0]
-    #     for i in range(1, len(index_list_delete)):
-    #         index_delete = list(set(index_delete).intersection(index_list_delete[i]))
-    #     index_delete.sort(reverse=True)
-    #     # delete data from table according to index in descending order
-    #     self._delete_data(index_delete)
+    def get_var(self):
+        return self.var
 
     def delete(self, action):
 
@@ -374,6 +374,8 @@ class Table:
                 filter.append('max')
             elif "min" in field.lower():
                 filter.append('min')
+            elif "sum" in field.lower():
+                filter.append('sum')
             else:
                 filter.append("")
             result.append(findall(r"\((.*?)\)", field)[0])
