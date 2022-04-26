@@ -207,16 +207,8 @@ class SQLExecuter:
         result = {}
         types = {}
         types = merge_dict(types, type1, first_table)
-
-        if action['join type'].upper() == 'JOIN':
-            result = merge_result_inner(result, res1, res2, first_table_col, second_table_field, first_table, second_table)
-            merge_dict(types, type2, second_table)
-        elif action['join type'].upper() == 'LEFT':
-            result = merge_result_left(result, res1, res2, first_table_col, second_table_field, first_table, second_table)
-            # merge_dict(types, type2, second_table)
-        elif action['join type'].upper() == 'RIGHT':
-            result = merge_result_right(result, res1, res2, first_table_col, second_table_field, first_table, second_table)
-            # merge_dict(types, type2, second_table)
+        result = merge_result_inner(result, res1, res2, first_table_col, second_table_field, first_table, second_table)
+        merge_dict(types, type2, second_table)
         _print(result, types)
 
     def _delete(self, action):

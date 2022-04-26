@@ -66,10 +66,37 @@ def merge_dict(result, res1, table):
         result[f"{table}.{k}"] = v
     return result
 
-def merge_result_left(result, res1, res2, first_table_col, second_table_field, first_table, second_table):
-    pass
+def merge_result_left(result, res1, res2, first_col, second_col, first_table, second_table, table):
+    # for the result1
+    res_cols, res_values = get_col_values_from_dict(res1)
+    # for the result2
+    res_cols2, res_values2 = get_col_values_from_dict(res2)
+    # inner join, main table is res1
+    if first_table == table:
+        if len(res_values[0]) < len(res_values2[0]):
+            main_table = True
+        else:
+            main_table = False
+    if main_table:
+        res_inner = []
+        for index, value in enumerate(res2[first_col]):
+            if value in res1[second_col]:
+                res_inner.append(index)
+        res_select = _select_part_data(res_inner, res_cols, res2)
+        result = merge_dict(result, res_select, second_table)
+        result = merge_dict(result, res1, first_table)
+        return result
+    else:
+        res_inner = []
+        for index, value in enumerate(res1[first_col]):
+            if value in res2[second_col]:
+                res_inner.append(index)
+        res_select = _select_part_data(res_inner, res_cols, res1)
+        result = merge_dict(result, res_select, first_table)
+        result = merge_dict(result, res2, second_table)
+        return result
 
-def merge_result_right(result, res1, res2, first_table_col, second_table_field, first_table, second_table):
+def merge_result_right(result, res1, res2, first_col, second_col, first_table, second_table, table):
     pass
 
 def merge_result_inner(result, res1, res2, first_col, second_col, first_table, second_table):
