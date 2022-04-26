@@ -46,12 +46,12 @@ class SQLExecuter:
 
     # execute the user entered statement
     def execute(self, statement):
-        # try:
-        action = self.parser.parse(statement)
-        if action:
-            self.function[action['type']](action)
-        # except Exception:
-        #     print("ERROR!!! Cannot Resolve The Given Input!!")
+        try:
+            action = self.parser.parse(statement)
+            if action:
+                self.function[action['type']](action)
+        except Exception:
+            print("ERROR!!! Cannot Resolve The Given Input!!")
 
 
     # create table
