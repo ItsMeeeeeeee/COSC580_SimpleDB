@@ -167,7 +167,7 @@ class SQLExecuter:
                 'fields': action['fields'],
             }
         # print('read table1')
-        res1, type1 = self.tables[first_table].select(action_to_table1)
+        res1, type1, _ = self.tables[first_table].select(action_to_table1)
         # print(res1)
         # use join fields to search table2 based on the values we select in table1
         for k, v in action['join fields'].items():
@@ -193,7 +193,7 @@ class SQLExecuter:
             'conditions': conditions
         }
         # print("read table 2")
-        res2, type2 = self.tables[second_table].select(action_to_table2)
+        res2, type2, _ = self.tables[second_table].select(action_to_table2)
         # print(res2)
         result = {}
         types = {}
