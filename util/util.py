@@ -66,6 +66,11 @@ def merge_dict(result, res1, table):
         result[f"{table}.{k}"] = v
     return result
 
+def merge_result_left(result, res1, res2, first_table_col, second_table_field, first_table, second_table):
+    pass
+
+def merge_result_right(result, res1, res2, first_table_col, second_table_field, first_table, second_table):
+    pass
 
 def merge_result_inner(result, res1, res2, first_col, second_col, first_table, second_table):
     # for the result1
