@@ -34,6 +34,7 @@ class Table:
             'count': self._select_count,
             'max': self._select_max,
             'min': self._select_min,
+            'sum': self._select_sum,
         }
 
         # self defined index, used if no primary key given
@@ -158,6 +159,13 @@ class Table:
 
         return [_min]
 
+    def _select_sum(self, field, index):
+        _sum = 0
+        for i in index:
+            _sum += self.data[field][i]
+        print(_sum)
+        return [_sum]
+
     # a helper function used to help select function to get corresponding info
     def _select_data(self, index_select, fields):
         try:
@@ -180,8 +188,9 @@ class Table:
             else:
                 field = fields[i]
             # print(f"index_select {index_select}")
+            # print(f"filter {filter[i]}, fields:{fields[i]}")
             if filter[i] in self._select_filter_map.keys():
-                result[fields[i]] = self._select_filter_map[filter[i]](field, index_select)
+                result[f"{filter[i]}_{fields[i]}"] = self._select_filter_map[filter[i]](field, index_select)
 
         return result
 
@@ -368,6 +377,8 @@ class Table:
                 filter.append('max')
             elif "min" in field.lower():
                 filter.append('min')
+            elif "sum" in field.lower():
+                filter.append('sum')
             else:
                 filter.append("")
             result.append(findall(r"\((.*?)\)", field)[0])
