@@ -1,9 +1,9 @@
 from executorSQL import *
 
 p = executorSQL.SQLExecuter()
-p.execute("show databases")
+# p.execute("show databases")
 # p.execute("CREATE DATABASE db")
-p.execute("USE db")
+p.execute("USE DBT")
 # p.execute("DROP TABLE Student")
 # p.execute("DROP TABLE Course")
 # p.execute("CREATE TABLE Student ( ID int, NAME String)")
@@ -38,8 +38,8 @@ p.execute("USE db")
 # p.execute("SELECT * FROM TABLE2")
 # todo TABLE.COL --> CONDITION
 # p.execute("UPDATE TABLE1 set COL1 = YES, COL2 = 6 WHERE COL2 = 4 OR COL2 = 10 ")
-# p.execute("SELECT * FROM Course")
-p.execute("SELECT ID, COURSE FROM Course LEFT JOIN Student ON Course.ID = Student.ID WHERE Course.ID > 3")
+p.execute("SELECT * FROM STUDENT JOIN STUDENT_BACKGROUND ON STUDENT.ID = STUDENT_BACKGROUND.ID WHERE STUDENT.ID > 1")
+# p.execute("SELECT ID, COURSE FROM Course LEFT JOIN Student ON Course.ID = Student.ID WHERE Course.ID > 3")
 # p.execute("DELETE FROM TABLE1 WHERE COL2 = 1 ")
 # p.execute("DELETE FROM TABLE1 WHERE COL2 = 1 OR COL1 = No")
 # p.execute("DELETE FROM Student WHERE ID = 3")
