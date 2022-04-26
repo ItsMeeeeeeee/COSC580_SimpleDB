@@ -178,7 +178,7 @@ class Table:
                 field = fields[i]
             # print(f"index_select {index_select}")
             if filter[i] in self._select_filter_map.keys():
-                result[fields[i]] = self._select_filter_map[filter[i]](field, index_select)
+                result[f"{filter[i]}_{fields[i]}"] = self._select_filter_map[filter[i]](field, index_select)
 
         return result
 

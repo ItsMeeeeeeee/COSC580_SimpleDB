@@ -1,100 +1,42 @@
-from executorSQL.executorSQL import SQLExecuter
-from parserSQL.parserSQL import SQLParser
-import util.util as util
+from parserSQL import *
+from executorSQL import *
 
-dd = {
-    "index":[0,1,2,3,4],
-    "name":["Ben","TOM","Jerry","Peter","Ken"],
-    "id":[0,1,2,3,4],
-    "money":[4,10,10000,11111,99999999],
-    "age":[15,20,25,26,40]
-}
-
-
-def update(action):
-    """
-
-    :param actions:
-    :return:
-    """
-    data = action['data']
-    conditions = action['conditions']
-
-    if not checkColumn([*data]):
-        return
-
-    col_update = []
-    con_update = []
-    for k, v in conditions.items():
-        col_update.append(k)
-        con_update.append(v)
-
-    list_update = []
-    for i in range(len(con_update)):
-        conu = con_update[i]
-        col = col_update[i]
-        if is_number(conu["value"]):
-            conu["value"] = int(conu["value"])
-        if conu["operation"] == '=':
-            list_update.append(util.get_equal_keys_list(dd[col], conu["value"]))
-        elif conu["operation"] == '<':
-            list_update.append(util.get_less_keys_list(dd[col], conu["value"]))
-        elif conu["operation"] == '>':
-            list_update.append(util.get_more_keys_list(dd[col], conu["value"]))
-        elif conu["operation"] == '<=':
-            list_update.append(util.get_less_equal_keys_list(dd[col], conu["value"]))
-        elif conu["operation"] == '>=':
-            list_update.append(util.get_more_equal_keys_list(dd[col], conu["value"]))
-
-    # print(list_update)
-    tmp = list_update[0]
-    for i in range(len(list_update)):
-        tmp = [val for val in tmp if val in list_update[i]]
-    for i in data.keys():
-        for j in tmp:
-            dd[i][j] = data[i]
-
-
-
-
-
-
-
-
-def checkColumn(input_col):
-    table_col = [*dd]
-    for ic in input_col:
-        if ic not in table_col:
-            print(f"Table does not have such column {ic}")
-            return False
-        else:
-            return True
-
-
-def is_number(s):
-    # check if string is numbers
-    try:
-        float(s)
-        return True
-    except ValueError:
-        pass
-
-    try:
-        import unicodedata
-        unicodedata.numeric(s)
-        return True
-    except (TypeError, ValueError):
-        pass
-
-    return False
-
-
-
-
-
-
-if __name__ == '__main__':
-    d = SQLParser().parse("update dd set money = 1, age = 3 where id > 0 AND age > 24")
-    print(f'tokens : {d}')
-    update(d)
-    print(dd)
+p = executorSQL.SQLExecuter()
+p.execute("show databases")
+# p.execute("CREATE DATABASE test_tt")
+p.execute("USE test_tt")
+# p.execute("CREATE INDEX i ON TABLE2 (COL2)")
+# p.execute("CREATE INDEX i2 ON TABLE2 (COL1)")
+# p.execute("CREATE INDEX i2 ON TABLE2 (COL1)")
+# p.execute("DROP INDEX i ON TABLE2")
+# p.execute("CREATE INDEX i ON TABLE2 (COL2)")
+# p.execute("SHOW tables")
+# p.execute("INSERT INTO TABLE2 VALUES (1, No, 1)")
+# p.execute("INSERT INTO TABLE2 VALUES (2, YES, 7)")
+# p.execute("INSERT INTO TABLE2 VALUES (3, YES, 6)")
+# p.execute("INSERT INTO TABLE2 VALUES (4, YES, 4)")
+# p.execute("INSERT INTO TABLE2 VALUES (5, No, 9)")
+# p.execute("INSERT INTO TABLE2 VALUES (6, YES, 11)")
+# p.execute("INSERT INTO TABLE2 VALUES (7, YES, 15)")
+# p.execute("INSERT INTO TABLE2 VALUES (8, YES, 18)")
+# p.execute("INSERT INTO TABLE2 VALUES (9, No, 22)")
+p.execute("SELECT count(COL2), AVG(COL2), MAX(COL2), MIN(COL2) FROM TABLE2")
+# p.execute("SELECT count(COL2) FROM TABLE2")
+# p.execute("SELECT avg(COL2) FROM TABLE2")
+# p.execute("SELECT min(COL2) FROM TABLE2")
+# p.execute("SELECT max(COL2) FROM TABLE2")
+# p.execute("SELECT AVG(COL2), AVG(COL1) FROM TABLE2 WHERE COL2 > 18 GROUP BY COL3")
+# p.execute("SELECT AVG(COL2) FROM TABLE2 GROUP BY COL3")
+# p.execute("SELECT * FROM TABLE2 LIMIT 3 ORDER BY COL2")
+# p.execute("SELECT * FROM TABLE2 ORDER BY COL2 LIMIT 3")
+# p.execute("SELECT * FROM TABLE2 ORDER BY COL2")
+# p.execute("SELECT * FROM TABLE2")
+# p.execute("SELECT * FROM TABLE2 GROUP BY COL2")
+# p.execute("SELECT COL2 FROM TABLE2")
+# p.execute("SELECT * FROM TABLE2")
+# p.execute("UPDATE TABLE1 set COL1 = YES, COL2 = 6 WHERE COL2 = 4 OR COL2 = 10 ")
+# p.execute("SELECT * FROM TABLE2")
+# p.execute("DELETE FROM TABLE1 WHERE COL2 = 1 ")
+# p.execute("DELETE FROM TABLE1 WHERE COL2 = 1 OR COL1 = No")
+# p.execute("DELETE FROM TABLE2 WHERE COL2 = 19")
+p.execute("EXIT")
