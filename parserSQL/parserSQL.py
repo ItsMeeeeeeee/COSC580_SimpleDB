@@ -29,7 +29,7 @@ class SQLParser:
             'DELETE': r'(DELETE|delete) (FROM|from) (.*)',
             'INSERT': r'(INSERT|insert) (INTO|into) (.*) \((.*)\) (VALUES|values) \((.*)\)',
             'INSERT_2': r'(INSERT|insert) (INTO|into) (.*) (VALUES|values) \((.*)\)',
-            'GROUPBY' : r'(.*) (GROUP|group) (BY|by) (.*)'
+            'GROUPBY': r'(.*) (GROUP|group) (BY|by) (.*)'
         }
 
     def __filter_space(self, obj):
@@ -46,14 +46,11 @@ class SQLParser:
         else:
             statement = statement.split("WHERE")
 
-
         base_statement = self.__filter_space(statement[0].split(" "))
-
 
         if len(base_statement) < 2 and base_statement[0].lower() not in ['exit', 'show']:
             print('Syntax Error for: %s' % statement)
             return
-
 
         if "JOIN" in base_statement or "join" in base_statement:
             action_type = "JOIN"
@@ -63,7 +60,6 @@ class SQLParser:
         if action_type not in self.__action_map:
             print('Syntax Error for: %s' % statement)
             return
-
 
         # print('parse statement:',statement,action_type)
         action = self.__action_map[action_type](base_statement)
@@ -75,12 +71,6 @@ class SQLParser:
 
         conditions = []
         if len(statement) == 2:
-            if 'ORDER BY' in statement[1]:
-                action['orderby'] = statement[1].split('ORDER BY')[1].strip().split(' ')[0]
-                statement[1] = statement[1].replace('ORDER BY ' + action['orderby'], '')
-            elif 'order by' in statement[1]:
-                action['orderby'] = statement[1].split('order by')[1].strip().split(' ')[0]
-                statement[1] = statement[1].replace('ORDER BY ' + action['orderby'], '')
             if 'GROUP BY' in statement[1]:
                 sub_statement = statement[1].split('GROUP BY')
             else:
@@ -95,13 +85,6 @@ class SQLParser:
                 else:
                     action['groupby'] = sub_sub_statement[0].strip()
                     action['limit'] = sub_sub_statement[1].strip()
-            else:
-                if 'LIMIT' in sub_statement[0]:
-                    action['limit'] = sub_statement[0].split('LIMIT')[1].strip().split(' ')[0]
-                    sub_statement[0] = sub_statement[0].replace('LIMIT ' + action['limit'], '')
-                elif 'limit' in sub_statement[0]:
-                    action['limit'] = sub_statement[0].split('limit')[1].strip().split(' ')[0]
-                    sub_statement[0] = sub_statement[0].replace('limit ' + action['limit'], '')
 
             if 'and' in sub_statement[0].lower():
                 conditions_list = self.__filter_space(sub_statement[0].split("AND"))
@@ -142,18 +125,14 @@ class SQLParser:
     def __get_comp(self, action):
         return compile(self.__pattern_map[action])
 
-
     def __join(self, statement):
         comp = self.__get_comp('SELECT')
         ret = comp.findall(' '.join(statement))[0]
         # print(ret)
         if ret and len(ret) == 4:
             fields = ret[1]
-            tables = []
             join_fields = {}
             left = ret[3].split(" ")
-            tables.append(left[0])
-            tables.append(left[2])
             join_field = [left[-1], left[-3]]
             for str in join_field:
                 table = str.split(".")[0]
@@ -163,7 +142,8 @@ class SQLParser:
                 fields = [field.strip() for field in fields.split(',')]
             return {
                 'type': 'search join',
-                'tables': tables,
+                'join type': left[1],
+                'tables': left[0],
                 'fields': fields,
                 'join fields': join_fields,
             }
@@ -179,7 +159,7 @@ class SQLParser:
             fields = ret[0][1]
             if fields != '*':
                 fields = [field.strip() for field in fields.split(',')]
-            
+
             action = {
                 'type': 'search',
                 'fields': fields
@@ -338,7 +318,6 @@ class SQLParser:
         print("Cannot Resolve Given Input!!!")
         return None
 
-
     def __exit(self, _):
         return {
             'type': 'exit'
@@ -357,7 +336,7 @@ class SQLParser:
                 'type': 'show',
                 'kind': 'tables'
             }
-            
+
     def __drop(self, statement):
         kind = statement[1]
         if len(statement) < 3:
@@ -383,7 +362,7 @@ class SQLParser:
                     'type': 'drop',
                     'kind': 'index',
                     'name': statement[2],
-                    'table' : ret[0][4]
+                    'table': ret[0][4]
                 }
         print("ERROR!!! Cannot Resolve Given Input!")
         return

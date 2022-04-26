@@ -53,7 +53,6 @@ class SQLExecuter:
         except Exception:
             print("ERROR!!! Cannot Resolve The Given Input!!")
 
-
     # create table
     def _create(self, action):
         # print(action)
@@ -71,7 +70,6 @@ class SQLExecuter:
             })
         except Exception as e:
             print(e.args[0])
-        
 
     # create index on specific table
     def _createIndex(self, action):
@@ -115,20 +113,15 @@ class SQLExecuter:
                 print('Error!!! No Table Named %s' % (action['table']))
                 return
             res, type, orderby = self.tables[action['table']].select(action)
-            
+
             if orderby:
                 for key, value in res.items():
                     new_value = copy.deepcopy(value)
-                    new_value = [i for _,i in sorted(zip(orderby, new_value))]
+                    new_value = [i for _, i in sorted(zip(orderby, new_value))]
                     res[key] = new_value
-            
+
             if action.get('limit'):
-                try:
-                    action['limit'] = int(action['limit'])
-                    _print(res, type, action['limit'])
-                except Exception:
-                    print('ERROR! Please Enter Integer As Limit Constraint!!')
-                    return 
+                _print(res, type, action['limit'])
             else:
                 _print(res, type)
         except Exception as e:
@@ -138,12 +131,14 @@ class SQLExecuter:
 
     def _select_join(self, action):
         """
-        :param action: {'type': 'search join',
-                        'tables': ['TABLE1', 'TABLE2'],
-                        'fields': '*',
-                        'join fields': {'TABLE2':'COL2', 'TABLE1':'COL2'},
-                        'conditions': [{'field': 'TABLE1.COL1', 'cond': {'operation': '=', 'value': 'YES'}}]}
-        :return: print result
+        :param action: {
+            'type': 'search join',
+            'join type': 'LEFT',
+            'tables': 'Course',
+            'fields': ['ID', 'NAME', 'COURSE'],
+            'join fields': {'Student': 'ID', 'Course': 'ID'},
+            'conditions': [{'field': 'Course.ID', 'cond': {'operation': '>', 'value': '3'}}]
+            }
         """
         # print(f"Now using join SQL!", action)
         if self.currentDB is None:
@@ -269,7 +264,7 @@ class SQLExecuter:
             databases = list(self.database.keys())
             # print(databases)
             _print({
-                'databases' : databases
+                'databases': databases
             })
         else:
             if self.currentDB == None:
@@ -277,7 +272,7 @@ class SQLExecuter:
                 return
             tables = list(self.tables.keys())
             _print({
-                'tables' : tables
+                'tables': tables
             })
             # print(tables)
 
@@ -308,7 +303,7 @@ class SQLExecuter:
                 return
             if action['table'] not in self.tables.keys():
                 print("No Table Named %s", action['table'])
-                return 
+                return
             if self.tables[action['table']].dropIndex(action):
                 self._updateTable({
                     'database': self.currentDB,
