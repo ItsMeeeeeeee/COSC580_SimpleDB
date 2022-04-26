@@ -1,6 +1,6 @@
 from parserSQL.parserSQL import SQLParser
 from database.database import Table
-from util.util import _print, merge_dict, merge_result_inner
+from util.util import _print, merge_dict, merge_result_inner, merge_result_left, merge_result_right
 
 from shutil import rmtree
 from pickle import dump, load
@@ -206,10 +206,17 @@ class SQLExecuter:
         # print(res2)
         result = {}
         types = {}
-        result = merge_result_inner(result, res1, res2, first_table_col, second_table_field, first_table, second_table)
         types = merge_dict(types, type1, first_table)
-        merge_dict(types, type2, second_table)
 
+        if action['join type'].upper() == 'JOIN':
+            result = merge_result_inner(result, res1, res2, first_table_col, second_table_field, first_table, second_table)
+            merge_dict(types, type2, second_table)
+        elif action['join type'].upper() == 'LEFT':
+            result = merge_result_left(result, res1, res2, first_table_col, second_table_field, first_table, second_table)
+            # merge_dict(types, type2, second_table)
+        elif action['join type'].upper() == 'RIGHT':
+            result = merge_result_right(result, res1, res2, first_table_col, second_table_field, first_table, second_table)
+            # merge_dict(types, type2, second_table)
         _print(result, types)
 
     def _delete(self, action):
