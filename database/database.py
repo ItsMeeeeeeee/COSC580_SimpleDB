@@ -34,7 +34,6 @@ class Table:
             'count': self._select_count,
             'max': self._select_max,
             'min': self._select_min,
-            'sum': self._select_sum,
         }
 
         # self defined index, used if no primary key given
@@ -52,7 +51,7 @@ class Table:
         # if primary key provided, this line is just overwrite the previous step; if not, this line will create a new list(key pair in the dictionary)
         self.data[self.primary] = []
 
-    # the helper function help condiction 
+    # the helper function help condiction
     def _filter(self, cond, col):
         try:
             return self._condition_map[cond["operation"]](cond, col)
@@ -159,22 +158,18 @@ class Table:
 
         return [_min]
 
-    def _select_sum(self, field, index):
-        _sum = 0
-        for i in index:
-            _sum += self.data[field][i]
-
-        return [_sum]
-
     # a helper function used to help select function to get corresponding info
     def _select_data(self, index_select, fields):
-        result = dict()
-        for index in index_select:
-            for field in fields:
-                if not result.get(field, False):
-                    result[field] = []
-                result[field].append(self.data[field][index])
-        return result
+        try:
+            result = dict()
+            for index in index_select:
+                for field in fields:
+                    if not result.get(field, False):
+                        result[field] = []
+                    result[field].append(self.data[field][index])
+            return result
+        except Exception:
+            print("key error!")
 
     def _select_data_3(self, index_select, fields, filter):
         result = dict()
@@ -184,9 +179,9 @@ class Table:
                 field = self.primary
             else:
                 field = fields[i]
-
+            # print(f"index_select {index_select}")
             if filter[i] in self._select_filter_map.keys():
-                result[f"{filter[i]}_{fields[i]}"] = self._select_filter_map[filter[i]](field, index_select)
+                result[fields[i]] = self._select_filter_map[filter[i]](field, index_select)
 
         return result
 
@@ -307,7 +302,7 @@ class Table:
             orderby = self.data[action['orderby']]
 
         # print('Index: ', index_select)
-        if filter and not filter == [''] :
+        if filter and not filter == ['']:
             if "groupby" in action.keys():
                 result = self._select_data_2(index_select, fields, filter, action['groupby'])
                 return result, None, orderby
@@ -323,7 +318,6 @@ class Table:
         for var in result.keys():
             type[var] = (self.type[self.var.index(var)])
 
-        
         return result, type, orderby
 
     def _insert(self, type, col, value):
@@ -374,8 +368,6 @@ class Table:
                 filter.append('max')
             elif "min" in field.lower():
                 filter.append('min')
-            elif "sum" in field.lower():
-                filter.append('sum')
             else:
                 filter.append("")
             result.append(findall(r"\((.*?)\)", field)[0])
@@ -454,8 +446,9 @@ class Table:
         # insert index as value where value as key
         for i in range(len(self.data[action['col']])):
             self.btrees[action['col']]['tree'].insert(self.data[action['col']][i], i)
-        
+
         return True
+
     def dropIndex(self, action):
         cols = []
         for key, value in self.btrees.items():
