@@ -220,16 +220,8 @@ class Table:
 
         return result
 
-    # def delete(self, action):
-    #     # get intersection
-
-    #     index_list_delete = self.condition_filter(action["conditions"])
-    #     index_delete = index_list_delete[0]
-    #     for i in range(1, len(index_list_delete)):
-    #         index_delete = list(set(index_delete).intersection(index_list_delete[i]))
-    #     index_delete.sort(reverse=True)
-    #     # delete data from table according to index in descending order
-    #     self._delete_data(index_delete)
+    def get_var(self):
+        return self.var
 
     def delete(self, action):
 
