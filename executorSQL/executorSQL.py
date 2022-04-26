@@ -46,12 +46,12 @@ class SQLExecuter:
 
     # execute the user entered statement
     def execute(self, statement):
-        try:
+        # try:
             action = self.parser.parse(statement)
             if action:
                 self.function[action['type']](action)
-        except Exception:
-            print("ERROR!!! Cannot Resolve The Given Input!!")
+        # except Exception:
+        #     print("ERROR!!! Cannot Resolve The Given Input!!")
 
     # create table
     def _create(self, action):
@@ -154,27 +154,33 @@ class SQLExecuter:
             first_table = action['conditions'][0]['field'].split(".")[0]
             first_table_cond_field = action['conditions'][0]['field'].split(".")[1]
             first_table_col = action['join fields'][first_table]
+            action_to_table1 = {
+                'type': 'search',
+                'table': first_table,
+                'conditions': action['conditions']
+            }
         else:
             first_table = list(action['join fields'].keys())[0]
             first_table_col = action['join fields'][first_table]
+            action_to_table1 = {
+                'type': 'search',
+                'table': first_table,
+            }
 
         first_table_cols = self.tables[first_table].get_var()
-        first_table_fields = []
-        for i in action['fields']:
-            if i in first_table_cols:
-                first_table_fields.append(i)
-                if i != action['join fields'][first_table]:
-                    action['fields'].remove(i)
 
-        action_to_table1 = {
-            'type': 'search',
-            'table': first_table,
-            'fields': first_table_fields,
-            'conditions': [{
-                'field': first_table_cond_field,
-                'cond': action['conditions'][0]['cond'],
-            }]
-        }
+        if action['fields'] == '*':
+            first_table_fields = '*'
+        else:
+            first_table_fields = []
+            for i in action['fields']:
+                if i in first_table_cols:
+                    first_table_fields.append(i)
+                    if i != action['join fields'][first_table]:
+                        action['fields'].remove(i)
+
+        action_to_table1['fields'] = first_table_fields
+
         # print('read table1')
         res1, type1, _ = self.tables[first_table].select(action_to_table1)
         # print(res1)
