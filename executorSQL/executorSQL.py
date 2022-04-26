@@ -121,7 +121,12 @@ class SQLExecuter:
                     res[key] = new_value
 
             if action.get('limit'):
-                _print(res, type, action['limit'])
+                try:
+                    action['limit'] = int(action['limit'])
+                    _print(res, type, action['limit'])
+                except Exception:
+                    print('ERROR! Please Enter Integer As Limit Constraint!!')
+                    return 
             else:
                 _print(res, type)
         except Exception as e:
